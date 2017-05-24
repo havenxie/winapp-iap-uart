@@ -1,0 +1,8 @@
+C:\Users\Haven\Desktop\IAP\winapp-iap-ymodem\win-iap-ymodem\bin\Debug\win-iap-ymodem.exe
+C:\Users\Haven\Desktop\IAP\winapp-iap-ymodem\win-iap-ymodem\bin\Debug\win-iap-ymodem.pdb
+C:\Users\Haven\Desktop\IAP\winapp-iap-ymodem\win-iap-ymodem\obj\Debug\win-iap-ymodem.csprojResolveAssemblyReference.cache
+C:\Users\Haven\Desktop\IAP\winapp-iap-ymodem\win-iap-ymodem\obj\Debug\win_iap_ymodem.Form1.resources
+C:\Users\Haven\Desktop\IAP\winapp-iap-ymodem\win-iap-ymodem\obj\Debug\win_iap_ymodem.Properties.Resources.resources
+C:\Users\Haven\Desktop\IAP\winapp-iap-ymodem\win-iap-ymodem\obj\Debug\win-iap-ymodem.csproj.GenerateResource.Cache
+C:\Users\Haven\Desktop\IAP\winapp-iap-ymodem\win-iap-ymodem\obj\Debug\win-iap-ymodem.exe
+C:\Users\Haven\Desktop\IAP\winapp-iap-ymodem\win-iap-ymodem\obj\Debug\win-iap-ymodem.pdb
