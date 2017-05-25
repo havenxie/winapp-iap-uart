@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.btn_Uart = new System.Windows.Forms.Button();
+            this.btn_Port = new System.Windows.Forms.Button();
             this.lbl_Port = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
@@ -37,9 +37,9 @@
             this.lbl_Bps = new System.Windows.Forms.Label();
             this.lbl_Pass = new System.Windows.Forms.Label();
             this.cbx_Port = new System.Windows.Forms.ComboBox();
-            this.cbx_Bps = new System.Windows.Forms.ComboBox();
-            this.tbx_Pass = new System.Windows.Forms.TextBox();
-            this.btn_Pass = new System.Windows.Forms.Button();
+            this.cbx_Baud = new System.Windows.Forms.ComboBox();
+            this.txb_FilePath = new System.Windows.Forms.TextBox();
+            this.btn_SelectHEX = new System.Windows.Forms.Button();
             this.btn_download = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -50,14 +50,15 @@
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
-            // btn_Uart
+            // btn_Port
             // 
-            this.btn_Uart.Location = new System.Drawing.Point(22, 120);
-            this.btn_Uart.Name = "btn_Uart";
-            this.btn_Uart.Size = new System.Drawing.Size(155, 32);
-            this.btn_Uart.TabIndex = 0;
-            this.btn_Uart.Text = "打开";
-            this.btn_Uart.UseVisualStyleBackColor = true;
+            this.btn_Port.Location = new System.Drawing.Point(22, 120);
+            this.btn_Port.Name = "btn_Port";
+            this.btn_Port.Size = new System.Drawing.Size(155, 32);
+            this.btn_Port.TabIndex = 0;
+            this.btn_Port.Text = "打开";
+            this.btn_Port.UseVisualStyleBackColor = true;
+            this.btn_Port.Click += new System.EventHandler(this.btn_Port_Click);
             // 
             // lbl_Port
             // 
@@ -77,7 +78,8 @@
             // 
             // openFileDialog1
             // 
-            this.openFileDialog1.FileName = "openFileDialog1";
+            this.openFileDialog1.Filter = "bin文件(*.bin)|*.bin|hex文件(*.hex)|*.hex";
+            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
             // lbl_Bps
             // 
@@ -104,30 +106,49 @@
             this.cbx_Port.Name = "cbx_Port";
             this.cbx_Port.Size = new System.Drawing.Size(98, 20);
             this.cbx_Port.TabIndex = 5;
+            this.cbx_Port.DropDown += new System.EventHandler(this.cbx_Port_DropDown);
             // 
-            // cbx_Bps
+            // cbx_Baud
             // 
-            this.cbx_Bps.FormattingEnabled = true;
-            this.cbx_Bps.Location = new System.Drawing.Point(79, 78);
-            this.cbx_Bps.Name = "cbx_Bps";
-            this.cbx_Bps.Size = new System.Drawing.Size(98, 20);
-            this.cbx_Bps.TabIndex = 6;
+            this.cbx_Baud.FormattingEnabled = true;
+            this.cbx_Baud.Items.AddRange(new object[] {
+            "Custom",
+            "110",
+            "300",
+            "600",
+            "1200",
+            "2400",
+            "4800",
+            "9600",
+            "14400",
+            "19200",
+            "38400",
+            "56000",
+            "57600",
+            "115200",
+            "128000",
+            "256000"});
+            this.cbx_Baud.Location = new System.Drawing.Point(79, 78);
+            this.cbx_Baud.Name = "cbx_Baud";
+            this.cbx_Baud.Size = new System.Drawing.Size(98, 20);
+            this.cbx_Baud.TabIndex = 6;
             // 
-            // tbx_Pass
+            // txb_FilePath
             // 
-            this.tbx_Pass.Location = new System.Drawing.Point(87, 36);
-            this.tbx_Pass.Name = "tbx_Pass";
-            this.tbx_Pass.Size = new System.Drawing.Size(206, 21);
-            this.tbx_Pass.TabIndex = 7;
+            this.txb_FilePath.Location = new System.Drawing.Point(87, 36);
+            this.txb_FilePath.Name = "txb_FilePath";
+            this.txb_FilePath.Size = new System.Drawing.Size(206, 21);
+            this.txb_FilePath.TabIndex = 7;
             // 
-            // btn_Pass
+            // btn_SelectHEX
             // 
-            this.btn_Pass.Location = new System.Drawing.Point(310, 35);
-            this.btn_Pass.Name = "btn_Pass";
-            this.btn_Pass.Size = new System.Drawing.Size(64, 23);
-            this.btn_Pass.TabIndex = 8;
-            this.btn_Pass.Text = "选择文件";
-            this.btn_Pass.UseVisualStyleBackColor = true;
+            this.btn_SelectHEX.Location = new System.Drawing.Point(310, 35);
+            this.btn_SelectHEX.Name = "btn_SelectHEX";
+            this.btn_SelectHEX.Size = new System.Drawing.Size(64, 23);
+            this.btn_SelectHEX.TabIndex = 8;
+            this.btn_SelectHEX.Text = "选择文件";
+            this.btn_SelectHEX.UseVisualStyleBackColor = true;
+            this.btn_SelectHEX.Click += new System.EventHandler(this.btn_SelectHex_Click);
             // 
             // btn_download
             // 
@@ -140,11 +161,11 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.btn_Uart);
+            this.groupBox1.Controls.Add(this.btn_Port);
             this.groupBox1.Controls.Add(this.lbl_Bps);
             this.groupBox1.Controls.Add(this.lbl_Port);
             this.groupBox1.Controls.Add(this.cbx_Port);
-            this.groupBox1.Controls.Add(this.cbx_Bps);
+            this.groupBox1.Controls.Add(this.cbx_Baud);
             this.groupBox1.Location = new System.Drawing.Point(27, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(197, 188);
@@ -154,9 +175,9 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.tbx_Pass);
+            this.groupBox2.Controls.Add(this.txb_FilePath);
             this.groupBox2.Controls.Add(this.lbl_Pass);
-            this.groupBox2.Controls.Add(this.btn_Pass);
+            this.groupBox2.Controls.Add(this.btn_SelectHEX);
             this.groupBox2.Location = new System.Drawing.Point(248, 18);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(380, 182);
@@ -205,6 +226,7 @@
             this.Controls.Add(this.progressBar1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -215,7 +237,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button btn_Uart;
+        private System.Windows.Forms.Button btn_Port;
         private System.Windows.Forms.Label lbl_Port;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.IO.Ports.SerialPort serialPort1;
@@ -223,9 +245,9 @@
         private System.Windows.Forms.Label lbl_Bps;
         private System.Windows.Forms.Label lbl_Pass;
         private System.Windows.Forms.ComboBox cbx_Port;
-        private System.Windows.Forms.ComboBox cbx_Bps;
-        private System.Windows.Forms.TextBox tbx_Pass;
-        private System.Windows.Forms.Button btn_Pass;
+        private System.Windows.Forms.ComboBox cbx_Baud;
+        private System.Windows.Forms.TextBox txb_FilePath;
+        private System.Windows.Forms.Button btn_SelectHEX;
         private System.Windows.Forms.Button btn_download;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
