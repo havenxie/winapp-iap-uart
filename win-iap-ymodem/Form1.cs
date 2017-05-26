@@ -45,6 +45,19 @@ namespace win_iap_ymodem
         
         private string filePath = "";
         private int fsLen;
+
+        /* packet define */
+        const byte PACKET_SEQNO_INDEX = 1;
+        const byte PACKET_SEQNO_COMP_INDEX = 2;
+        const byte PACKET_HEADER = 3;
+        const byte PACKET_TRAILER = 2;
+        const byte PACKET_OVERHEAD = 2 + 3;
+        const byte PACKET_SIZE = 128;
+        const int PACKET_1K_SIZE = 1024;
+
+        const int FILE_NAME_LENGTH = 256;
+        const byte FILE_SIZE_LENGTH = 16;
+
         public Form1()
         {
             InitializeComponent();
@@ -54,12 +67,15 @@ namespace win_iap_ymodem
         {
             closeControlBtn();
             EnumComportfromReg(cbx_Port);
+            serialPort1.Encoding = Encoding.GetEncoding("gb2312");//串口接收编码GB2312码
+            System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;//忽略程序跨越线程运行导致的错误.没有此句将会产生错误
             cbx_Baud.SelectedIndex = 13;
+            
         }
 
         private void openControlBtn()
         {
-            btn_download.Enabled = true;
+            btn_Update.Enabled = true;
             btn_Upload.Enabled = true;
             btn_Reset.Enabled = true;
             btn_Erase.Enabled = true;
@@ -67,7 +83,7 @@ namespace win_iap_ymodem
 
         private void closeControlBtn()
         {
-            btn_download.Enabled = false;
+            btn_Update.Enabled = false;
             btn_Upload.Enabled = false;
             btn_Reset.Enabled = false;
             btn_Erase.Enabled = false;
@@ -332,6 +348,217 @@ namespace win_iap_ymodem
             
         }
 
+        /// <summary>
+        /// 串口接收数据显示（用于调试）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
+        {
+            try
+            {
+                string revData = serialPort1.ReadExisting();
+                tbx_rev.AppendText(revData);
+            }
+            catch
+            {
+                MessageBox.Show("串口出现故障");
+            }
+        }
 
+        private bool YmodemUpLoalFile(string filePath)
+        {
+            /* control signals */
+            const byte STX = 2;  // Start of TeXt 
+            const byte EOT = 4;  // End Of Transmission
+            const byte ACK = 6;  // Positive ACknowledgement
+            const byte C = 67;   // capital letter C
+
+            /* sizes */
+            const int dataSize = 1024;
+            const int crcSize = 2;
+
+            /* the packet size: 1029 bytes */
+            /* header: 3 bytes */
+            // STX
+            int packetNumber = 0;
+            int invertedPacketNumber = 255;
+            /* data: 1024 bytes */
+            byte[] data = new byte[dataSize];
+            /* footer: 2 bytes */
+            byte[] CRC = new byte[crcSize];
+
+            /* get the file */
+            FileStream fileStream = new FileStream(@filePath, FileMode.Open, FileAccess.Read);
+            try
+            {
+                /* send the initial packet with filename and filesize */
+                if (serialPort1.ReadByte() != C)
+                {
+                    Console.WriteLine("Can't begin the transfer.");
+                    return false;
+                }
+
+                sendYmodemInitialPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, filePath, fileStream, CRC, crcSize);
+
+                if (serialPort1.ReadByte() != ACK)
+                {
+                    Console.WriteLine("Can't send the initial packet.");
+                    return false;
+                }
+
+                if (serialPort1.ReadByte() != C)
+                    return false;
+
+                /* send packets with a cycle until we send the last byte */
+                int fileReadCount;
+                do
+                {
+                    /* if this is the last packet fill the remaining bytes with 0 */
+                    fileReadCount = fileStream.Read(data, 0, dataSize);
+                    if (fileReadCount == 0) break;
+                    if (fileReadCount != dataSize)
+                        for (int i = fileReadCount; i < dataSize; i++)
+                            data[i] = 0;
+
+                    /* calculate packetNumber */
+                    packetNumber++;
+                    if (packetNumber > 255)
+                        packetNumber -= 256;
+                    Console.WriteLine(packetNumber);
+
+                    /* calculate invertedPacketNumber */
+                    invertedPacketNumber = 255 - packetNumber;
+
+                    /* calculate CRC */
+                    Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
+                    CRC = crc16Ccitt.ComputeChecksumBytes(data);
+
+                    /* send the packet */
+                    sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+
+                    /* wait for ACK */
+                    if (serialPort1.ReadByte() != ACK)
+                    {
+                        Console.WriteLine("Couldn't send a packet.");
+                        return false;
+                    }
+                } while (dataSize == fileReadCount);
+
+                /* send EOT (tell the downloader we are finished) */
+                serialPort1.Write(new byte[] { EOT }, 0, 1);
+                /* send closing packet */
+                packetNumber = 0;
+                invertedPacketNumber = 255;
+                data = new byte[dataSize];
+                CRC = new byte[crcSize];
+                sendYmodemClosingPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+                /* get ACK (downloader acknowledge the EOT) */
+                if (serialPort1.ReadByte() != ACK)
+                {
+                    Console.WriteLine("Can't complete the transfer.");
+                    return false;
+                }
+            }
+            catch (TimeoutException)
+            {
+                throw new Exception("Eductor does not answering");
+            }
+            finally
+            {
+                fileStream.Close();
+            }
+
+            Console.WriteLine("File transfer is succesful");
+            return true;
+        }
+
+        private void sendYmodemInitialPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, string path, FileStream fileStream, byte[] CRC, int crcSize)
+        {
+            string fileName = System.IO.Path.GetFileName(path);
+            string fileSize = fileStream.Length.ToString();
+
+            /* add filename to data */
+            int i;
+            for (i = 0; i < fileName.Length && (fileName.ToCharArray()[i] != 0); i++)
+            {
+                data[i] = (byte)fileName.ToCharArray()[i];
+            }
+            data[i] = 0;
+
+            /* add filesize to data */
+            int j;
+            for (j = 0; j < fileSize.Length && (fileSize.ToCharArray()[j] != 0); j++)
+            {
+                data[(i + 1) + j] = (byte)fileSize.ToCharArray()[j];
+            }
+            data[(i + 1) + j] = 0;
+
+            /* fill the remaining data bytes with 0 */
+            for (int k = ((i + 1) + j) + 1; k < dataSize; k++)
+            {
+                data[k] = 0;
+            }
+
+            /* calculate CRC */
+            Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
+            CRC = crc16Ccitt.ComputeChecksumBytes(data);
+
+            /* send the packet */
+            sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+        }
+
+        private void sendYmodemPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
+        {
+            serialPort1.Write(new byte[] { STX }, 0, 1);
+            serialPort1.Write(new byte[] { (byte)packetNumber }, 0, 1);
+            serialPort1.Write(new byte[] { (byte)invertedPacketNumber }, 0, 1);
+            serialPort1.Write(data, 0, dataSize);
+            serialPort1.Write(CRC, 0, crcSize);
+        }
+
+        private void uploadFileThread()
+        {
+            YmodemUpLoalFile(txb_FilePath.Text);
+        }
+        /// <summary>
+        /// 更新固件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_Update_Click(object sender, EventArgs e)
+        {
+            Thread UploadThread = new Thread(uploadFileThread); 
+        }
+
+        /// <summary>
+        /// 擦除固件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_Erase_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        /// <summary>
+        /// 上传固件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_Upload_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// 复位固件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_Reset_Click(object sender, EventArgs e)
+        {
+            serialPort1.WriteLine("a");
+        }
     }
 }

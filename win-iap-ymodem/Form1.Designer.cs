@@ -40,12 +40,13 @@
             this.cbx_Baud = new System.Windows.Forms.ComboBox();
             this.txb_FilePath = new System.Windows.Forms.TextBox();
             this.btn_SelectHEX = new System.Windows.Forms.Button();
-            this.btn_download = new System.Windows.Forms.Button();
+            this.btn_Update = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btn_Erase = new System.Windows.Forms.Button();
             this.btn_Upload = new System.Windows.Forms.Button();
             this.btn_Reset = new System.Windows.Forms.Button();
+            this.tbx_rev = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -75,6 +76,11 @@
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(601, 28);
             this.progressBar1.TabIndex = 2;
+            // 
+            // serialPort1
+            // 
+            this.serialPort1.BaudRate = 115200;
+            this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
             // 
             // openFileDialog1
             // 
@@ -150,14 +156,15 @@
             this.btn_SelectHEX.UseVisualStyleBackColor = true;
             this.btn_SelectHEX.Click += new System.EventHandler(this.btn_SelectHex_Click);
             // 
-            // btn_download
+            // btn_Update
             // 
-            this.btn_download.Location = new System.Drawing.Point(27, 244);
-            this.btn_download.Name = "btn_download";
-            this.btn_download.Size = new System.Drawing.Size(116, 28);
-            this.btn_download.TabIndex = 9;
-            this.btn_download.Text = "更新固件";
-            this.btn_download.UseVisualStyleBackColor = true;
+            this.btn_Update.Location = new System.Drawing.Point(27, 244);
+            this.btn_Update.Name = "btn_Update";
+            this.btn_Update.Size = new System.Drawing.Size(116, 28);
+            this.btn_Update.TabIndex = 9;
+            this.btn_Update.Text = "更新固件";
+            this.btn_Update.UseVisualStyleBackColor = true;
+            this.btn_Update.Click += new System.EventHandler(this.btn_Update_Click);
             // 
             // groupBox1
             // 
@@ -175,6 +182,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.tbx_rev);
             this.groupBox2.Controls.Add(this.txb_FilePath);
             this.groupBox2.Controls.Add(this.lbl_Pass);
             this.groupBox2.Controls.Add(this.btn_SelectHEX);
@@ -193,6 +201,7 @@
             this.btn_Erase.TabIndex = 12;
             this.btn_Erase.Text = "擦除固件";
             this.btn_Erase.UseVisualStyleBackColor = true;
+            this.btn_Erase.Click += new System.EventHandler(this.btn_Erase_Click);
             // 
             // btn_Upload
             // 
@@ -202,6 +211,7 @@
             this.btn_Upload.TabIndex = 13;
             this.btn_Upload.Text = "读取固件";
             this.btn_Upload.UseVisualStyleBackColor = true;
+            this.btn_Upload.Click += new System.EventHandler(this.btn_Upload_Click);
             // 
             // btn_Reset
             // 
@@ -211,6 +221,15 @@
             this.btn_Reset.TabIndex = 14;
             this.btn_Reset.Text = "复位MCU";
             this.btn_Reset.UseVisualStyleBackColor = true;
+            this.btn_Reset.Click += new System.EventHandler(this.btn_Reset_Click);
+            // 
+            // tbx_rev
+            // 
+            this.tbx_rev.Location = new System.Drawing.Point(18, 86);
+            this.tbx_rev.Multiline = true;
+            this.tbx_rev.Name = "tbx_rev";
+            this.tbx_rev.Size = new System.Drawing.Size(362, 76);
+            this.tbx_rev.TabIndex = 9;
             // 
             // Form1
             // 
@@ -221,7 +240,7 @@
             this.Controls.Add(this.btn_Upload);
             this.Controls.Add(this.btn_Erase);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.btn_download);
+            this.Controls.Add(this.btn_Update);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.progressBar1);
             this.Name = "Form1";
@@ -248,12 +267,13 @@
         private System.Windows.Forms.ComboBox cbx_Baud;
         private System.Windows.Forms.TextBox txb_FilePath;
         private System.Windows.Forms.Button btn_SelectHEX;
-        private System.Windows.Forms.Button btn_download;
+        private System.Windows.Forms.Button btn_Update;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btn_Erase;
         private System.Windows.Forms.Button btn_Upload;
         private System.Windows.Forms.Button btn_Reset;
+        private System.Windows.Forms.TextBox tbx_rev;
     }
 }
 
