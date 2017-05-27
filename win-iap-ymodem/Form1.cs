@@ -42,11 +42,12 @@ namespace win_iap_ymodem
                     closeControlBtn();
             }
         }
-        
+
         private string filePath = "";
         private int fsLen;
 
         /* packet define */
+        const byte C = 67;   // capital letter C
         const byte PACKET_SEQNO_INDEX = 1;
         const byte PACKET_SEQNO_COMP_INDEX = 2;
         const byte PACKET_HEADER = 3;
@@ -70,7 +71,7 @@ namespace win_iap_ymodem
             serialPort1.Encoding = Encoding.GetEncoding("gb2312");//串口接收编码GB2312码
             System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;//忽略程序跨越线程运行导致的错误.没有此句将会产生错误
             cbx_Baud.SelectedIndex = 13;
-            
+
         }
 
         private void openControlBtn()
@@ -88,7 +89,7 @@ namespace win_iap_ymodem
             btn_Reset.Enabled = false;
             btn_Erase.Enabled = false;
         }
- 
+
         private void btn_SelectHex_Click(object sender, EventArgs e)
         {
             openFileDialog1.ShowDialog();
@@ -345,7 +346,7 @@ namespace win_iap_ymodem
             {
                 MessageBox.Show(ex.ToString());
             }
-            
+
         }
 
         /// <summary>
@@ -358,7 +359,7 @@ namespace win_iap_ymodem
             try
             {
                 string revData = serialPort1.ReadExisting();
-                tbx_rev.AppendText(revData);
+                tbx_show.AppendText(revData);
             }
             catch
             {
@@ -372,7 +373,7 @@ namespace win_iap_ymodem
             const byte STX = 2;  // Start of TeXt 
             const byte EOT = 4;  // End Of Transmission
             const byte ACK = 6;  // Positive ACknowledgement
-            const byte C = 67;   // capital letter C
+
 
             /* sizes */
             const int dataSize = 1024;
@@ -532,12 +533,30 @@ namespace win_iap_ymodem
             YmodemUpLoalFile(txb_FilePath.Text);
         }
         /// <summary>
-        /// 更新固件
+        /// bootloader运行时更新固件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btn_Update_Click(object sender, EventArgs e)
         {
+            Thread UploadThread = new Thread(uploadFileThread);
+            UploadThread.Start();
+        }
+
+        /// <summary>
+        /// app运行时更新固件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_Update1_Click(object sender, EventArgs e)
+        {
+            serialPort1.Write("download\r\n");
+            Thread.Sleep(1000);
+            if (serialPort1.ReadByte() != C)
+            {
+                Console.WriteLine("download cmd error!");
+                MessageBox.Show("启动下载命令失败！");
+            }
             Thread UploadThread = new Thread(uploadFileThread);
             UploadThread.Start();
         }
@@ -572,9 +591,28 @@ namespace win_iap_ymodem
             serialPort1.Write("reset\r\n");
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btn_Clear_Click(object sender, EventArgs e)
+        {
+            tbx_show.Text = "";
+        }
+
+        private void btn_SendCMD_Click(object sender, EventArgs e)
         {
 
+        }
+
+        string cmd_str = "";
+        private void tbx_show_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                serialPort1.Write("\r");
+                //MessageBox.Show(cmd_str);
+            }
+            else
+            {
+                serialPort1.Write(e.KeyChar.ToString());
+            }
         }
     }
 }
