@@ -43,10 +43,11 @@
             this.btn_Update = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.tbx_rev = new System.Windows.Forms.TextBox();
             this.btn_Erase = new System.Windows.Forms.Button();
             this.btn_Upload = new System.Windows.Forms.Button();
             this.btn_Reset = new System.Windows.Forms.Button();
-            this.tbx_rev = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -193,6 +194,14 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "文件操作";
             // 
+            // tbx_rev
+            // 
+            this.tbx_rev.Location = new System.Drawing.Point(18, 86);
+            this.tbx_rev.Multiline = true;
+            this.tbx_rev.Name = "tbx_rev";
+            this.tbx_rev.Size = new System.Drawing.Size(362, 76);
+            this.tbx_rev.TabIndex = 9;
+            // 
             // btn_Erase
             // 
             this.btn_Erase.Location = new System.Drawing.Point(192, 244);
@@ -223,19 +232,22 @@
             this.btn_Reset.UseVisualStyleBackColor = true;
             this.btn_Reset.Click += new System.EventHandler(this.btn_Reset_Click);
             // 
-            // tbx_rev
+            // button1
             // 
-            this.tbx_rev.Location = new System.Drawing.Point(18, 86);
-            this.tbx_rev.Multiline = true;
-            this.tbx_rev.Name = "tbx_rev";
-            this.tbx_rev.Size = new System.Drawing.Size(362, 76);
-            this.tbx_rev.TabIndex = 9;
+            this.button1.Location = new System.Drawing.Point(127, 206);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(116, 28);
+            this.button1.TabIndex = 15;
+            this.button1.Text = "App更新固件";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(658, 343);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.btn_Reset);
             this.Controls.Add(this.btn_Upload);
             this.Controls.Add(this.btn_Erase);
@@ -274,6 +286,7 @@
         private System.Windows.Forms.Button btn_Upload;
         private System.Windows.Forms.Button btn_Reset;
         private System.Windows.Forms.TextBox tbx_rev;
+        private System.Windows.Forms.Button button1;
     }
 }
 

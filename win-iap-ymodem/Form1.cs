@@ -473,6 +473,15 @@ namespace win_iap_ymodem
             return true;
         }
 
+        private void sendYmodemPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
+        {
+            serialPort1.Write(new byte[] { STX }, 0, 1);
+            serialPort1.Write(new byte[] { (byte)packetNumber }, 0, 1);
+            serialPort1.Write(new byte[] { (byte)invertedPacketNumber }, 0, 1);
+            serialPort1.Write(data, 0, dataSize);
+            serialPort1.Write(CRC, 0, crcSize);
+        }
+
         private void sendYmodemInitialPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, string path, FileStream fileStream, byte[] CRC, int crcSize)
         {
             string fileName = System.IO.Path.GetFileName(path);
@@ -508,13 +517,14 @@ namespace win_iap_ymodem
             sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
         }
 
-        private void sendYmodemPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
+        private void sendYmodemClosingPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
         {
-            serialPort1.Write(new byte[] { STX }, 0, 1);
-            serialPort1.Write(new byte[] { (byte)packetNumber }, 0, 1);
-            serialPort1.Write(new byte[] { (byte)invertedPacketNumber }, 0, 1);
-            serialPort1.Write(data, 0, dataSize);
-            serialPort1.Write(CRC, 0, crcSize);
+            /* calculate CRC */
+            Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
+            CRC = crc16Ccitt.ComputeChecksumBytes(data);
+
+            /* send the packet */
+            sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
         }
 
         private void uploadFileThread()
@@ -528,7 +538,8 @@ namespace win_iap_ymodem
         /// <param name="e"></param>
         private void btn_Update_Click(object sender, EventArgs e)
         {
-            Thread UploadThread = new Thread(uploadFileThread); 
+            Thread UploadThread = new Thread(uploadFileThread);
+            UploadThread.Start();
         }
 
         /// <summary>
@@ -538,7 +549,7 @@ namespace win_iap_ymodem
         /// <param name="e"></param>
         private void btn_Erase_Click(object sender, EventArgs e)
         {
-            
+            serialPort1.Write("erase\r\n");
         }
 
         /// <summary>
@@ -558,7 +569,12 @@ namespace win_iap_ymodem
         /// <param name="e"></param>
         private void btn_Reset_Click(object sender, EventArgs e)
         {
-            serialPort1.WriteLine("a");
+            serialPort1.Write("reset\r\n");
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
