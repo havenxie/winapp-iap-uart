@@ -550,13 +550,14 @@ namespace win_iap_ymodem
         /// <param name="e"></param>
         private void btn_Update1_Click(object sender, EventArgs e)
         {
-            serialPort1.Write("download\r\n");
+            serialPort1.Write("update\r\n");
             Thread.Sleep(1000);
-            if (serialPort1.ReadByte() != C)
-            {
-                Console.WriteLine("download cmd error!");
-                MessageBox.Show("启动下载命令失败！");
-            }
+            tbx_show.AppendText(serialPort1.ReadExisting());
+            //if (serialPort1.ReadByte() != C)
+            //{
+            //    Console.WriteLine("update cmd error!");
+            //    MessageBox.Show("启动下载命令失败！");
+            //}
             Thread UploadThread = new Thread(uploadFileThread);
             UploadThread.Start();
         }
@@ -607,6 +608,7 @@ namespace win_iap_ymodem
             if (e.KeyChar == (char)Keys.Enter)
             {
                 serialPort1.Write("\r");
+                serialPort1.Write("\n");
                 //MessageBox.Show(cmd_str);
             }
             else
