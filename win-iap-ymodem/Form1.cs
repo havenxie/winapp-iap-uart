@@ -73,6 +73,9 @@ namespace win_iap_ymodem
             cbx_Baud.SelectedIndex = 13;
         }
 
+        /// <summary>
+        /// enabled all button
+        /// </summary>
         private void openControlBtn()
         {
             btn_Update.Enabled = true;
@@ -82,6 +85,9 @@ namespace win_iap_ymodem
             btn_Erase.Enabled = true;
         }
 
+        /// <summary>
+        /// disabled all button
+        /// </summary>
         private void closeControlBtn()
         {
             btn_Update.Enabled = false;
@@ -91,11 +97,21 @@ namespace win_iap_ymodem
             btn_Erase.Enabled = false;
         }
 
-        private void btn_SelectHex_Click(object sender, EventArgs e)
+        /// <summary>
+        /// the button for select bin file or hex file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_SelectFile_Click(object sender, EventArgs e)
         {
             openFileDialog1.ShowDialog();
         }
-
+        
+        /// <summary>
+        /// has been selected the right file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
             filePath = openFileDialog1.FileName;
@@ -103,6 +119,7 @@ namespace win_iap_ymodem
             string extName = System.IO.Path.GetExtension(filePath);
             if (extName == ".hex")
             {
+                //we shoule convert the hex file to bin file.
                 convertHexToBin(filePath);
             }
             else
@@ -111,9 +128,14 @@ namespace win_iap_ymodem
                 fsLen = (int)fileStream.Length / 1000;
             }
             txb_FilePath.Text = filePath;
-            HasSelectBin = true;
+            HasSelectBin = true;//flag has been select file.
         }
 
+        /// <summary>
+        /// get all port and add to cbx_Port.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void cbx_Port_DropDown(object sender, EventArgs e)
         {
             if (!HasOpenPort)
@@ -122,6 +144,11 @@ namespace win_iap_ymodem
             }
         }
 
+        /// <summary>
+        /// open or close port.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_Port_Click(object sender, EventArgs e)
         {
             if (serialPort1.IsOpen)//try to close
@@ -184,17 +211,19 @@ namespace win_iap_ymodem
             if (Combobox.Items.Count > 0)
             {
                 Combobox.SelectedIndex = 0;
-                //btn_Uart.Enabled = true;
             }
             else
             {
                 Combobox.Text = "";
-                //MessageBox.Show("无法获取有效端口号!", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             regSubKey.Close();
             regRootKey.Close();
         }
 
+        /// <summary>
+        /// convert hex file to bin file.
+        /// </summary>
+        /// <param name="szHexPath"></param>
         public void convertHexToBin(string szHexPath)
         {
             Int32 i = 0;
@@ -210,24 +239,18 @@ namespace win_iap_ymodem
                 String szHex = "";
                 if (szHexPath == "")
                 {
-                    MessageBox.Show("请选择需要转换的目标文件!         ", "错误");
+                    MessageBox.Show("请选择需要转换的目标文件! ", "提示");
                     return;
                 }
-
                 StreamReader HexReader = new StreamReader(szHexPath);
-
                 //先找出HEX文件的最大地址
                 while (true)
                 {
                     szLine = HexReader.ReadLine(); //读取一行数据
                     i++;
-                    if (szLine == null) //读完所有行
-                    {
-                        break;
-                    }
+                    if (szLine == null) break;
                     if (szLine.Substring(0, 1) == ":") //判断第1字符是否是:
                     {
-
                         if (szLine.Substring(1, 8) == "00000001")//数据结束
                         {
                             break;
@@ -251,19 +274,15 @@ namespace win_iap_ymodem
                             if (tmpAddr > maxAddr)
                                 maxAddr = tmpAddr;
                         }
-
                     }
                     else
                     {
                         MessageBox.Show("错误:不是标准的hex文件!");
                         return;
                     }
-
                 }
-
                 //新建一个二进制文件,填充为0XFF
                 byte[] szBin = new byte[sum];
-
 
                 ////for (i = 0; i < maxAddr; i++)
                 ////    szBin[i] = 0XFF;
@@ -275,9 +294,7 @@ namespace win_iap_ymodem
                 //根据hex文件地址,填充bin文件
                 while (true)
                 {
-
                     szLine = HexReader.ReadLine(); //读取一行数据
-
                     if (szLine == null) //读完所有行
                     {
                         break;
@@ -312,13 +329,8 @@ namespace win_iap_ymodem
                 }
 
                 HexReader.Close(); //关闭目标文件
-
-
-                //  if (path == "")
-                {
-                    filePath = Path.ChangeExtension(szHexPath, "bin");
-                    //tbBinPath.Text = szBinPath;
-                }
+                filePath = Path.ChangeExtension(szHexPath, "bin");
+                //tbBinPath.Text = szBinPath;
                 FileStream fs = new FileStream(filePath, FileMode.Create);
 
                 //将byte数组写入文件中
@@ -331,8 +343,6 @@ namespace win_iap_ymodem
                 string tmp = "文件转换完成! 文件大小: ";
                 tmp += sum.ToString();
                 tmp += "字节";
-
-
                 //FileStream fBin = new FileStream(szBinPath, FileMode.Create); //创建文件BIN文件
                 //BinaryWriter BinWrite = new BinaryWriter(fBin); //二进制方式打开文件
                 //BinWrite.Write(szBin, 0,maxAddr); //写入数据
@@ -351,7 +361,7 @@ namespace win_iap_ymodem
         }
 
         /// <summary>
-        /// 串口接收数据显示（用于调试）
+        /// once has date in. we should show it on the txb.(找到了bug的原因，就是有数据来了之后首先主动去读取了一次数据，然后又通过这个服务去被动读取了一次，所以会出现问题。)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -368,7 +378,7 @@ namespace win_iap_ymodem
             }
         }
 
-        private bool YmodemUpLoalFile(string filePath)
+        private bool YmodemUpdateFile(string filePath)
         {
             /* control signals */
             const byte STX = 2;  // Start of TeXt 
@@ -382,6 +392,7 @@ namespace win_iap_ymodem
             /* the packet size: 1029 bytes */
             /* header: 3 bytes */
             // STX
+            int proprassVal = 0;
             int packetNumber = 0;
             int invertedPacketNumber = 255;
             /* data: 1024 bytes */
@@ -391,6 +402,8 @@ namespace win_iap_ymodem
 
             /* get the file */
             FileStream fileStream = new FileStream(@filePath, FileMode.Open, FileAccess.Read);
+            progressBar1.Maximum = (int)(fileStream.Length / 1024) + 1;
+
             try
             {
                 /* send the initial packet with filename and filesize */
@@ -437,7 +450,7 @@ namespace win_iap_ymodem
 
                     /* send the packet */
                     sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
-
+                    progressBar1.Value = ++ proprassVal;
                     /* wait for ACK */
                     if (serialPort1.ReadByte() != ACK)
                     {
@@ -481,12 +494,14 @@ namespace win_iap_ymodem
             serialPort1.Write(new byte[] { (byte)invertedPacketNumber }, 0, 1);
             serialPort1.Write(data, 0, dataSize);
             serialPort1.Write(CRC, 0, crcSize);
+            
         }
 
         private void sendYmodemInitialPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, string path, FileStream fileStream, byte[] CRC, int crcSize)
         {
             string fileName = System.IO.Path.GetFileName(path);
             string fileSize = fileStream.Length.ToString();
+            
 
             /* add filename to data */
             int i;
@@ -528,68 +543,93 @@ namespace win_iap_ymodem
             sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
         }
 
-        private void uploadFileThread()
-        {
-            YmodemUpLoalFile(txb_FilePath.Text);
-        }
         /// <summary>
-        /// bootloader运行时更新固件
+        /// A thread to update firmware.
+        /// </summary>
+        private void updateFileThread()
+        {
+            YmodemUpdateFile(txb_FilePath.Text);
+        }
+
+        /// <summary>
+        /// update the firmware when the bootloader is runing.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btn_Update_Click(object sender, EventArgs e)
         {
-            Thread UploadThread = new Thread(uploadFileThread);
-            UploadThread.Start();
+            Thread UpdateThread = new Thread(updateFileThread);
+            UpdateThread.Start();
         }
 
         /// <summary>
-        /// app运行时更新固件
+        /// upload the firmware when the app is runing.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btn_Update1_Click(object sender, EventArgs e)
         {
+            progressBar1.Value = 0;
+            this.Refresh();
+
             serialPort1.Write("update\r\n");
             string str = "";
             while (true)
             {
-                string rec = serialPort1.ReadExisting();
+                string rec = serialPort1.ReadExisting();//we has been rev the file.
                 if (rec.Length == 1 && rec.ToCharArray()[0] == C)
                     break;
-                else {
+                else
+                {
                     str += rec;
                 }
             }
             tbx_show.AppendText(str);
             tbx_show.Refresh();
 
-            Thread UploadThread = new Thread(uploadFileThread);
+            Thread UploadThread = new Thread(updateFileThread);
             UploadThread.Start();
         }
 
         /// <summary>
-        /// 擦除固件
+        /// erase all flash when the button has checked.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btn_Erase_Click(object sender, EventArgs e)
         {
+            progressBar1.Value = 0;
+            this.Refresh();
+  
             serialPort1.Write("erase\r\n");
+
+            int recMax = serialPort1.ReadChar();
+            progressBar1.Maximum = 250;
+            //while (true)
+            //{
+            //    int rec = serialPort1.ReadChar();
+            //    if (rec >= recMax)
+            //    {
+            //        progressBar1.Value = progressBar1.Maximum;
+            //        break;
+            //    }
+            //    progressBar1.Value = rec;
+            //}
+
         }
 
         /// <summary>
-        /// 上传固件
+        /// upload the app file form stm32 to PC.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btn_Upload_Click(object sender, EventArgs e)
         {
-
+            //to do.
         }
 
         /// <summary>
-        /// 复位固件
+        /// reset the stm32 when the button has been checkde.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -598,29 +638,41 @@ namespace win_iap_ymodem
             serialPort1.Write("reset\r\n");
         }
 
+        /// <summary>
+        /// clear tbx_show window when the button has been checked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_Clear_Click(object sender, EventArgs e)
         {
             tbx_show.Text = "";
         }
 
+        //should to remove the button.
+        string cmd_str = "";
         private void btn_SendCMD_Click(object sender, EventArgs e)
         {
-
+            
         }
 
-        string cmd_str = "";
+        /// <summary>
+        /// when user is input the key on the tbx_show, it should be send to stm32.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tbx_show_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
                 serialPort1.Write("\r");
                 serialPort1.Write("\n");
-                //MessageBox.Show(cmd_str);
             }
             else
             {
                 serialPort1.Write(e.KeyChar.ToString());
             }
         }
+
+
     }
 }

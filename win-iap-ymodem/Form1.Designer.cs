@@ -39,7 +39,7 @@
             this.cbx_Port = new System.Windows.Forms.ComboBox();
             this.cbx_Baud = new System.Windows.Forms.ComboBox();
             this.txb_FilePath = new System.Windows.Forms.TextBox();
-            this.btn_SelectHEX = new System.Windows.Forms.Button();
+            this.btn_SelectFile = new System.Windows.Forms.Button();
             this.btn_Update = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -148,15 +148,15 @@
             this.txb_FilePath.Size = new System.Drawing.Size(287, 21);
             this.txb_FilePath.TabIndex = 7;
             // 
-            // btn_SelectHEX
+            // btn_SelectFile
             // 
-            this.btn_SelectHEX.Location = new System.Drawing.Point(390, 36);
-            this.btn_SelectHEX.Name = "btn_SelectHEX";
-            this.btn_SelectHEX.Size = new System.Drawing.Size(64, 23);
-            this.btn_SelectHEX.TabIndex = 8;
-            this.btn_SelectHEX.Text = "选择文件";
-            this.btn_SelectHEX.UseVisualStyleBackColor = true;
-            this.btn_SelectHEX.Click += new System.EventHandler(this.btn_SelectHex_Click);
+            this.btn_SelectFile.Location = new System.Drawing.Point(390, 36);
+            this.btn_SelectFile.Name = "btn_SelectFile";
+            this.btn_SelectFile.Size = new System.Drawing.Size(64, 23);
+            this.btn_SelectFile.TabIndex = 8;
+            this.btn_SelectFile.Text = "选择文件";
+            this.btn_SelectFile.UseVisualStyleBackColor = true;
+            this.btn_SelectFile.Click += new System.EventHandler(this.btn_SelectFile_Click);
             // 
             // btn_Update
             // 
@@ -188,7 +188,7 @@
             this.groupBox2.Controls.Add(this.tbx_show);
             this.groupBox2.Controls.Add(this.txb_FilePath);
             this.groupBox2.Controls.Add(this.lbl_Pass);
-            this.groupBox2.Controls.Add(this.btn_SelectHEX);
+            this.groupBox2.Controls.Add(this.btn_SelectFile);
             this.groupBox2.Location = new System.Drawing.Point(236, 12);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(472, 269);
@@ -292,7 +292,7 @@
         private System.Windows.Forms.ComboBox cbx_Port;
         private System.Windows.Forms.ComboBox cbx_Baud;
         private System.Windows.Forms.TextBox txb_FilePath;
-        private System.Windows.Forms.Button btn_SelectHEX;
+        private System.Windows.Forms.Button btn_SelectFile;
         private System.Windows.Forms.Button btn_Update;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
