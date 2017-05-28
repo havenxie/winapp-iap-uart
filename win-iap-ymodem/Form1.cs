@@ -71,12 +71,12 @@ namespace win_iap_ymodem
             serialPort1.Encoding = Encoding.GetEncoding("gb2312");//串口接收编码GB2312码
             System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;//忽略程序跨越线程运行导致的错误.没有此句将会产生错误
             cbx_Baud.SelectedIndex = 13;
-
         }
 
         private void openControlBtn()
         {
             btn_Update.Enabled = true;
+            btn_Update1.Enabled = true;
             btn_Upload.Enabled = true;
             btn_Reset.Enabled = true;
             btn_Erase.Enabled = true;
@@ -85,6 +85,7 @@ namespace win_iap_ymodem
         private void closeControlBtn()
         {
             btn_Update.Enabled = false;
+            btn_Update1.Enabled = false;
             btn_Upload.Enabled = false;
             btn_Reset.Enabled = false;
             btn_Erase.Enabled = false;
@@ -374,7 +375,6 @@ namespace win_iap_ymodem
             const byte EOT = 4;  // End Of Transmission
             const byte ACK = 6;  // Positive ACknowledgement
 
-
             /* sizes */
             const int dataSize = 1024;
             const int crcSize = 2;
@@ -551,13 +551,19 @@ namespace win_iap_ymodem
         private void btn_Update1_Click(object sender, EventArgs e)
         {
             serialPort1.Write("update\r\n");
-            Thread.Sleep(1000);
-            tbx_show.AppendText(serialPort1.ReadExisting());
-            //if (serialPort1.ReadByte() != C)
-            //{
-            //    Console.WriteLine("update cmd error!");
-            //    MessageBox.Show("启动下载命令失败！");
-            //}
+            string str = "";
+            while (true)
+            {
+                string rec = serialPort1.ReadExisting();
+                if (rec.Length == 1 && rec.ToCharArray()[0] == C)
+                    break;
+                else {
+                    str += rec;
+                }
+            }
+            tbx_show.AppendText(str);
+            tbx_show.Refresh();
+
             Thread UploadThread = new Thread(uploadFileThread);
             UploadThread.Start();
         }

@@ -43,13 +43,12 @@
             this.btn_Update = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btn_Clear = new System.Windows.Forms.Button();
             this.tbx_show = new System.Windows.Forms.TextBox();
             this.btn_Erase = new System.Windows.Forms.Button();
             this.btn_Upload = new System.Windows.Forms.Button();
             this.btn_Reset = new System.Windows.Forms.Button();
             this.btn_Update1 = new System.Windows.Forms.Button();
-            this.btn_Clear = new System.Windows.Forms.Button();
-            this.btn_SendCMD = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -185,7 +184,6 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.btn_SendCMD);
             this.groupBox2.Controls.Add(this.btn_Clear);
             this.groupBox2.Controls.Add(this.tbx_show);
             this.groupBox2.Controls.Add(this.txb_FilePath);
@@ -197,6 +195,16 @@
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "文件操作";
+            // 
+            // btn_Clear
+            // 
+            this.btn_Clear.Location = new System.Drawing.Point(18, 240);
+            this.btn_Clear.Name = "btn_Clear";
+            this.btn_Clear.Size = new System.Drawing.Size(75, 23);
+            this.btn_Clear.TabIndex = 16;
+            this.btn_Clear.Text = "清除窗口";
+            this.btn_Clear.UseVisualStyleBackColor = true;
+            this.btn_Clear.Click += new System.EventHandler(this.btn_Clear_Click);
             // 
             // tbx_show
             // 
@@ -248,26 +256,6 @@
             this.btn_Update1.UseVisualStyleBackColor = true;
             this.btn_Update1.Click += new System.EventHandler(this.btn_Update1_Click);
             // 
-            // btn_Clear
-            // 
-            this.btn_Clear.Location = new System.Drawing.Point(18, 240);
-            this.btn_Clear.Name = "btn_Clear";
-            this.btn_Clear.Size = new System.Drawing.Size(75, 23);
-            this.btn_Clear.TabIndex = 16;
-            this.btn_Clear.Text = "清除窗口";
-            this.btn_Clear.UseVisualStyleBackColor = true;
-            this.btn_Clear.Click += new System.EventHandler(this.btn_Clear_Click);
-            // 
-            // btn_SendCMD
-            // 
-            this.btn_SendCMD.Location = new System.Drawing.Point(124, 240);
-            this.btn_SendCMD.Name = "btn_SendCMD";
-            this.btn_SendCMD.Size = new System.Drawing.Size(75, 23);
-            this.btn_SendCMD.TabIndex = 17;
-            this.btn_SendCMD.Text = "发送命令";
-            this.btn_SendCMD.UseVisualStyleBackColor = true;
-            this.btn_SendCMD.Click += new System.EventHandler(this.btn_SendCMD_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -314,7 +302,6 @@
         private System.Windows.Forms.TextBox tbx_show;
         private System.Windows.Forms.Button btn_Update1;
         private System.Windows.Forms.Button btn_Clear;
-        private System.Windows.Forms.Button btn_SendCMD;
     }
 }
 
