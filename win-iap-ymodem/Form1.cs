@@ -572,21 +572,20 @@ namespace win_iap_ymodem
             progressBar1.Value = 0;
             this.Refresh();
 
-            serialPort1.Write("update\r\n");
+            serialPort1.Write("update\r\n");//发送更新命令
             string str = "";
-            while (true)
+            while (true)//等待ack响应
             {
-                string rec = serialPort1.ReadExisting();//we has been rev the file.
+                string rec = serialPort1.ReadExisting();
                 if (rec.Length == 1 && rec.ToCharArray()[0] == C)
                     break;
                 else
                 {
-                    str += rec;
+                    tbx_show.AppendText(rec);
                 }
             }
-            tbx_show.AppendText(str);
-            tbx_show.Refresh();
 
+          
             Thread UploadThread = new Thread(updateFileThread);
             UploadThread.Start();
         }
@@ -603,19 +602,8 @@ namespace win_iap_ymodem
   
             serialPort1.Write("erase\r\n");
 
-            int recMax = serialPort1.ReadChar();
             progressBar1.Maximum = 250;
-            //while (true)
-            //{
-            //    int rec = serialPort1.ReadChar();
-            //    if (rec >= recMax)
-            //    {
-            //        progressBar1.Value = progressBar1.Maximum;
-            //        break;
-            //    }
-            //    progressBar1.Value = rec;
-            //}
-
+        
         }
 
         /// <summary>
@@ -660,19 +648,36 @@ namespace win_iap_ymodem
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        string sendCmd = "";
         private void tbx_show_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
-                serialPort1.Write("\r");
-                serialPort1.Write("\n");
+                switch (sendCmd)
+                {
+                    case "update":
+                        serialPort1.Write("update\r\n");
+                        break;
+                    case "upload":
+                        serialPort1.Write("upload\r\n");
+                        break;
+                    case "erase":
+                        serialPort1.Write("erase\r\n");
+                        break;
+                    case "runapp":
+                        serialPort1.Write("runapp\r\n");
+                        break;
+                    default:
+                        MessageBox.Show("命令无效");
+                        break;
+                }
+                sendCmd = "";
             }
             else
             {
-                serialPort1.Write(e.KeyChar.ToString());
+                //serialPort1.Write(e.KeyChar.ToString());
+                sendCmd += e.KeyChar.ToString();
             }
         }
-
-
     }
 }
