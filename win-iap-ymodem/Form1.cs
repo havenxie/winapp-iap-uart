@@ -585,9 +585,10 @@ namespace win_iap_ymodem
                 }
             }
 
-          
+            
             Thread UploadThread = new Thread(updateFileThread);
             UploadThread.Start();
+
         }
 
         /// <summary>
@@ -668,7 +669,7 @@ namespace win_iap_ymodem
                         serialPort1.Write("runapp\r\n");
                         break;
                     default:
-                        MessageBox.Show("命令无效");
+                        serialPort1.Write("error\r\n");
                         break;
                 }
                 sendCmd = "";
