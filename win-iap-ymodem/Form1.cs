@@ -78,7 +78,6 @@ namespace win_iap_ymodem
         /// </summary>
         private void openControlBtn()
         {
-            btn_Update.Enabled = true;
             btn_Update1.Enabled = true;
             btn_Upload.Enabled = true;
             btn_Reset.Enabled = true;
@@ -90,7 +89,6 @@ namespace win_iap_ymodem
         /// </summary>
         private void closeControlBtn()
         {
-            btn_Update.Enabled = false;
             btn_Update1.Enabled = false;
             btn_Upload.Enabled = false;
             btn_Reset.Enabled = false;
@@ -374,7 +372,7 @@ namespace win_iap_ymodem
             }
             catch
             {
-                MessageBox.Show("串口出现故障");
+               // MessageBox.Show("串口出现故障");
             }
         }
 
@@ -551,6 +549,11 @@ namespace win_iap_ymodem
             YmodemUpdateFile(txb_FilePath.Text);
         }
 
+        private void startUpDate()
+        {
+            Thread UploadThread = new Thread(updateFileThread);
+            UploadThread.Start();
+        }
         /// <summary>
         /// update the firmware when the bootloader is runing.
         /// </summary>
@@ -558,8 +561,7 @@ namespace win_iap_ymodem
         /// <param name="e"></param>
         private void btn_Update_Click(object sender, EventArgs e)
         {
-            Thread UpdateThread = new Thread(updateFileThread);
-            UpdateThread.Start();
+            
         }
 
         /// <summary>
@@ -571,24 +573,18 @@ namespace win_iap_ymodem
         {
             progressBar1.Value = 0;
             this.Refresh();
-
-            serialPort1.Write("update\r\n");//发送更新命令
-            string str = "";
-            while (true)//等待ack响应
-            {
-                string rec = serialPort1.ReadExisting();
-                if (rec.Length == 1 && rec.ToCharArray()[0] == C)
-                    break;
-                else
-                {
-                    tbx_show.AppendText(rec);
-                }
-            }
-
             
-            Thread UploadThread = new Thread(updateFileThread);
-            UploadThread.Start();
-
+            serialPort1.Write("update\r\n");//发送更新命令
+            serialPort1.ReadTimeout = 1000;
+            try
+            {
+                string rec = serialPort1.ReadTo("C");
+                startUpDate();
+            }
+            catch
+            {
+                MessageBox.Show("响应超时");
+            }
         }
 
         /// <summary>
@@ -600,11 +596,21 @@ namespace win_iap_ymodem
         {
             progressBar1.Value = 0;
             this.Refresh();
-  
-            serialPort1.Write("erase\r\n");
 
-            progressBar1.Maximum = 250;
-        
+            serialPort1.Write("erase\r\n");
+            serialPort1.ReadTimeout = 1000;
+            try
+            {
+                string rec = serialPort1.ReadTo("@");
+                tbx_show.AppendText(rec);
+                progressBar1.Maximum = Convert.ToInt32(rec);
+            }
+            catch
+            {
+                //MessageBox.Show("响应超时");
+                tbx_show.AppendText("\r\n响应超时");
+            }        
+
         }
 
         /// <summary>
@@ -657,7 +663,7 @@ namespace win_iap_ymodem
                 switch (sendCmd)
                 {
                     case "update":
-                        serialPort1.Write("update\r\n");
+                        btn_Update1_Click(null, null);
                         break;
                     case "upload":
                         serialPort1.Write("upload\r\n");
