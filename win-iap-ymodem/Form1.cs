@@ -372,7 +372,7 @@ namespace win_iap_ymodem
             }
             catch
             {
-               // MessageBox.Show("串口出现故障");
+                // MessageBox.Show("串口出现故障");
             }
         }
 
@@ -597,20 +597,44 @@ namespace win_iap_ymodem
             progressBar1.Value = 0;
             this.Refresh();
 
+            this.serialPort1.DataReceived -= new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
+
             serialPort1.Write("erase\r\n");
             serialPort1.ReadTimeout = 1000;
             try
             {
                 string rec = serialPort1.ReadTo("@");
-                tbx_show.AppendText(rec);
+                rec = serialPort1.ReadTo("@");
                 progressBar1.Maximum = Convert.ToInt32(rec);
+                tbx_show.AppendText("> 需要擦除 " + rec + " 页:\r\n");
+                while (true)
+                {
+                    rec = serialPort1.ReadTo("@");
+                    if (rec != "")
+                    {
+                        int val = Convert.ToInt32(rec);
+                        if (val < progressBar1.Maximum)
+                        {
+                            progressBar1.Value = val;
+                            tbx_show.AppendText("> 正在擦除 " + val + " 页.\r\n");
+                        }
+                        else
+                        {
+                            progressBar1.Value = progressBar1.Maximum;
+                            tbx_show.AppendText("> 正在擦除 " + val + " 页.\r\n");
+                            tbx_show.AppendText("> 擦除完成.\r\n");
+                            break;
+                        }
+                    }
+                }
             }
-            catch
+            catch (TimeoutException)
             {
-                //MessageBox.Show("响应超时");
-                tbx_show.AppendText("\r\n响应超时");
-            }        
-
+                tbx_show.AppendText("> 响应超时.\r\n");
+            }
+            finally {
+                this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
+            }
         }
 
         /// <summary>
@@ -666,10 +690,10 @@ namespace win_iap_ymodem
                         btn_Update1_Click(null, null);
                         break;
                     case "upload":
-                        serialPort1.Write("upload\r\n");
+                        
                         break;
                     case "erase":
-                        serialPort1.Write("erase\r\n");
+                        btn_Erase_Click(null, null);
                         break;
                     case "runapp":
                         serialPort1.Write("runapp\r\n");
