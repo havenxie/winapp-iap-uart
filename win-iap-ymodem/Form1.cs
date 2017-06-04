@@ -45,6 +45,7 @@ namespace win_iap_ymodem
 
         public static string filePath = "";
         string sendCmd = "";
+        int fsLen = 0;
 
         /* packet define */
         const byte C = 67;   // capital letter C
@@ -81,8 +82,9 @@ namespace win_iap_ymodem
         {
             btn_Update.Enabled = true;
             btn_Upload.Enabled = true;
-            btn_Reset.Enabled = true;
             //btn_Erase.Enabled = true;
+            btn_IAPMenu.Enabled = true;
+            btn_RunApp.Enabled = true;
         }
 
 
@@ -93,8 +95,10 @@ namespace win_iap_ymodem
         {
             btn_Update.Enabled = false;
             btn_Upload.Enabled = false;
-            btn_Reset.Enabled = false;
             //btn_Erase.Enabled = false;
+            btn_IAPMenu.Enabled = false;
+            btn_RunApp.Enabled = false;
+
         }
 
 
@@ -353,8 +357,25 @@ namespace win_iap_ymodem
         private void btn_Upload_Click(object sender, EventArgs e)
         {
             //to do.
+            MessageBox.Show("不好意思，这个功能还没有做。");
         }
 
+
+        /// <summary>
+        /// into iap menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_IAPMenu_Click(object sender, EventArgs e)
+        {
+            serialPort1.Write("menu\r\n");
+        }
+
+
+        private void btn_RunApp_Click(object sender, EventArgs e)
+        {
+            serialPort1.Write("runapp\r\n");
+        }
 
         /// <summary>
         /// reset the stm32 when the button has been checkde.
@@ -378,6 +399,7 @@ namespace win_iap_ymodem
         }
 
 
+
         /// <summary>
         /// when user is input the key on the tbx_show, it should be send to stm32.
         /// </summary>
@@ -399,11 +421,14 @@ namespace win_iap_ymodem
                     case "erase":
                         btn_Erase_Click(null, null);
                         break;
+                    case "menu":
+                        btn_IAPMenu_Click(null, null);
+                        break;
                     case "runapp":
-                        serialPort1.Write("runapp\r\n");
+                        btn_RunApp_Click(null, null);
                         break;
                     default:
-                        serialPort1.Write("error\r\n");
+                        serialPort1.Write(sendCmd + "\r\n");
                         break;
                 }
                 sendCmd = "";
@@ -587,6 +612,7 @@ namespace win_iap_ymodem
             /* send the packet */
             sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
         }
+
 
     }
 }

@@ -46,8 +46,9 @@
             this.tbx_show = new System.Windows.Forms.TextBox();
             this.btn_Erase = new System.Windows.Forms.Button();
             this.btn_Upload = new System.Windows.Forms.Button();
-            this.btn_Reset = new System.Windows.Forms.Button();
+            this.btn_RunApp = new System.Windows.Forms.Button();
             this.btn_Update = new System.Windows.Forms.Button();
+            this.btn_IAPMenu = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -76,7 +77,7 @@
             this.progressBar1.BackColor = System.Drawing.SystemColors.ControlLight;
             this.progressBar1.Location = new System.Drawing.Point(12, 381);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(710, 22);
+            this.progressBar1.Size = new System.Drawing.Size(715, 22);
             this.progressBar1.TabIndex = 2;
             // 
             // serialPort1
@@ -182,7 +183,7 @@
             this.groupBox2.Controls.Add(this.btn_SelectFile);
             this.groupBox2.Location = new System.Drawing.Point(220, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(502, 306);
+            this.groupBox2.Size = new System.Drawing.Size(507, 306);
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "文件操作";
@@ -204,15 +205,15 @@
             this.tbx_show.Multiline = true;
             this.tbx_show.Name = "tbx_show";
             this.tbx_show.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbx_show.Size = new System.Drawing.Size(501, 223);
+            this.tbx_show.Size = new System.Drawing.Size(506, 223);
             this.tbx_show.TabIndex = 9;
             this.tbx_show.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbx_show_KeyPress);
             // 
             // btn_Erase
             // 
-            this.btn_Erase.Location = new System.Drawing.Point(361, 336);
+            this.btn_Erase.Location = new System.Drawing.Point(429, 336);
             this.btn_Erase.Name = "btn_Erase";
-            this.btn_Erase.Size = new System.Drawing.Size(96, 28);
+            this.btn_Erase.Size = new System.Drawing.Size(94, 28);
             this.btn_Erase.TabIndex = 12;
             this.btn_Erase.Text = "擦除固件Erase";
             this.btn_Erase.UseVisualStyleBackColor = true;
@@ -220,23 +221,23 @@
             // 
             // btn_Upload
             // 
-            this.btn_Upload.Location = new System.Drawing.Point(496, 336);
+            this.btn_Upload.Location = new System.Drawing.Point(324, 336);
             this.btn_Upload.Name = "btn_Upload";
-            this.btn_Upload.Size = new System.Drawing.Size(98, 28);
+            this.btn_Upload.Size = new System.Drawing.Size(99, 28);
             this.btn_Upload.TabIndex = 13;
             this.btn_Upload.Text = "读取固件UpLoad";
             this.btn_Upload.UseVisualStyleBackColor = true;
             this.btn_Upload.Click += new System.EventHandler(this.btn_Upload_Click);
             // 
-            // btn_Reset
+            // btn_RunApp
             // 
-            this.btn_Reset.Location = new System.Drawing.Point(626, 336);
-            this.btn_Reset.Name = "btn_Reset";
-            this.btn_Reset.Size = new System.Drawing.Size(96, 28);
-            this.btn_Reset.TabIndex = 14;
-            this.btn_Reset.Text = "复位Reset";
-            this.btn_Reset.UseVisualStyleBackColor = true;
-            this.btn_Reset.Click += new System.EventHandler(this.btn_Reset_Click);
+            this.btn_RunApp.Location = new System.Drawing.Point(631, 336);
+            this.btn_RunApp.Name = "btn_RunApp";
+            this.btn_RunApp.Size = new System.Drawing.Size(96, 28);
+            this.btn_RunApp.TabIndex = 14;
+            this.btn_RunApp.Text = "运行App";
+            this.btn_RunApp.UseVisualStyleBackColor = true;
+            this.btn_RunApp.Click += new System.EventHandler(this.btn_RunApp_Click);
             // 
             // btn_Update
             // 
@@ -244,19 +245,30 @@
             this.btn_Update.ForeColor = System.Drawing.SystemColors.Desktop;
             this.btn_Update.Location = new System.Drawing.Point(220, 336);
             this.btn_Update.Name = "btn_Update";
-            this.btn_Update.Size = new System.Drawing.Size(100, 28);
+            this.btn_Update.Size = new System.Drawing.Size(98, 28);
             this.btn_Update.TabIndex = 15;
             this.btn_Update.Text = "更新固件UpDate";
             this.btn_Update.UseVisualStyleBackColor = false;
             this.btn_Update.Click += new System.EventHandler(this.btn_Update_Click);
+            // 
+            // btn_IAPMenu
+            // 
+            this.btn_IAPMenu.Location = new System.Drawing.Point(529, 336);
+            this.btn_IAPMenu.Name = "btn_IAPMenu";
+            this.btn_IAPMenu.Size = new System.Drawing.Size(96, 28);
+            this.btn_IAPMenu.TabIndex = 16;
+            this.btn_IAPMenu.Text = "进入IAP菜单";
+            this.btn_IAPMenu.UseVisualStyleBackColor = true;
+            this.btn_IAPMenu.Click += new System.EventHandler(this.btn_IAPMenu_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.ClientSize = new System.Drawing.Size(734, 416);
-            this.Controls.Add(this.btn_Reset);
+            this.ClientSize = new System.Drawing.Size(743, 416);
+            this.Controls.Add(this.btn_IAPMenu);
+            this.Controls.Add(this.btn_RunApp);
             this.Controls.Add(this.btn_Upload);
             this.Controls.Add(this.btn_Erase);
             this.Controls.Add(this.btn_Update);
@@ -291,10 +303,11 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btn_Erase;
         private System.Windows.Forms.Button btn_Upload;
-        private System.Windows.Forms.Button btn_Reset;
+        private System.Windows.Forms.Button btn_RunApp;
         private System.Windows.Forms.TextBox tbx_show;
         private System.Windows.Forms.Button btn_Update;
         private System.Windows.Forms.Button btn_Clear;
+        private System.Windows.Forms.Button btn_IAPMenu;
     }
 }
 
