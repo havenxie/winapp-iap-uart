@@ -43,8 +43,8 @@ namespace win_iap_ymodem
             }
         }
 
-        private string filePath = "";
-        private int fsLen;
+        public static string filePath = "";
+        string sendCmd = "";
 
         /* packet define */
         const byte C = 67;   // capital letter C
@@ -73,27 +73,30 @@ namespace win_iap_ymodem
             cbx_Baud.SelectedIndex = 13;
         }
 
+
         /// <summary>
         /// enabled all button
         /// </summary>
         private void openControlBtn()
         {
-            btn_Update1.Enabled = true;
+            btn_Update.Enabled = true;
             btn_Upload.Enabled = true;
             btn_Reset.Enabled = true;
-            btn_Erase.Enabled = true;
+            //btn_Erase.Enabled = true;
         }
+
 
         /// <summary>
         /// disabled all button
         /// </summary>
         private void closeControlBtn()
         {
-            btn_Update1.Enabled = false;
+            btn_Update.Enabled = false;
             btn_Upload.Enabled = false;
             btn_Reset.Enabled = false;
-            btn_Erase.Enabled = false;
+            //btn_Erase.Enabled = false;
         }
+
 
         /// <summary>
         /// the button for select bin file or hex file.
@@ -105,6 +108,7 @@ namespace win_iap_ymodem
             openFileDialog1.ShowDialog();
         }
         
+
         /// <summary>
         /// has been selected the right file.
         /// </summary>
@@ -114,20 +118,29 @@ namespace win_iap_ymodem
         {
             filePath = openFileDialog1.FileName;
             //Get the extension of the file
-            string extName = System.IO.Path.GetExtension(filePath);
+            string extName = Path.GetExtension(filePath);
             if (extName == ".hex")
             {
                 //we shoule convert the hex file to bin file.
-                convertHexToBin(filePath);
+                if (HexToBin.convertHexToBin(filePath))
+                {
+                    tbx_show.AppendText("> 文件转换完成!\r\n");
+                }
+                else
+                {
+                    tbx_show.AppendText("> 文件转换失败!\r\n");
+                }
             }
-            else
-            {
-                FileStream fileStream = new FileStream(@filePath, FileMode.Open, FileAccess.Read);
-                fsLen = (int)fileStream.Length / 1000;
-            }
+
             txb_FilePath.Text = filePath;
+
             HasSelectBin = true;//flag has been select file.
+
+            FileStream fileStream = new FileStream(@filePath, FileMode.Open, FileAccess.Read);
+            fsLen = (int)fileStream.Length;
+            tbx_show.AppendText("文件大小: " + fsLen.ToString() + "\r\n");
         }
+
 
         /// <summary>
         /// get all port and add to cbx_Port.
@@ -141,6 +154,7 @@ namespace win_iap_ymodem
                 EnumComportfromReg(cbx_Port);
             }
         }
+
 
         /// <summary>
         /// open or close port.
@@ -184,6 +198,7 @@ namespace win_iap_ymodem
             }
         }
 
+
         /// <summary>
         /// Get the port list from the registry
         /// </summary>
@@ -218,145 +233,6 @@ namespace win_iap_ymodem
             regRootKey.Close();
         }
 
-        /// <summary>
-        /// convert hex file to bin file.
-        /// </summary>
-        /// <param name="szHexPath"></param>
-        public void convertHexToBin(string szHexPath)
-        {
-            Int32 i = 0;
-            Int32 j = 0;
-            Int32 maxAddr = 0;        //HEX文件的最大地址
-            Int32 segAddr = 0;        //段地址
-            Int32 first = 0;
-            Int32 row = 0;
-            Int32 sum = 0;
-            try
-            {
-                String szLine = "";
-                String szHex = "";
-                if (szHexPath == "")
-                {
-                    MessageBox.Show("请选择需要转换的目标文件! ", "提示");
-                    return;
-                }
-                StreamReader HexReader = new StreamReader(szHexPath);
-                //先找出HEX文件的最大地址
-                while (true)
-                {
-                    szLine = HexReader.ReadLine(); //读取一行数据
-                    i++;
-                    if (szLine == null) break;
-                    if (szLine.Substring(0, 1) == ":") //判断第1字符是否是:
-                    {
-                        if (szLine.Substring(1, 8) == "00000001")//数据结束
-                        {
-                            break;
-                        }
-                        if (szLine.Substring(7, 2) == "04")
-                        {
-                            segAddr = Int32.Parse(szLine.Substring(9, 4), NumberStyles.HexNumber);      //800
-                            segAddr *= 16;
-                        }
-                        else if (szLine.Substring(7, 2) == "00")
-                        {
-                            int len_row = szLine.Length;
-                            Int32 tmpAddr = Int32.Parse(szLine.Substring(3, 4), NumberStyles.HexNumber);
-                            tmpAddr += UInt16.Parse(szLine.Substring(1, 2), NumberStyles.HexNumber);
-                            tmpAddr += segAddr;
-                            row++;
-                            sum = row * 16;
-                            if (len_row < 42)
-                                sum -= Int32.Parse(szLine.Substring(1, 2), NumberStyles.HexNumber);
-
-                            if (tmpAddr > maxAddr)
-                                maxAddr = tmpAddr;
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("错误:不是标准的hex文件!");
-                        return;
-                    }
-                }
-                //新建一个二进制文件,填充为0XFF
-                byte[] szBin = new byte[sum];
-
-                ////for (i = 0; i < maxAddr; i++)
-                ////    szBin[i] = 0XFF;
-                ////返回文件开头
-                HexReader.BaseStream.Seek(0, SeekOrigin.Begin);
-                HexReader.DiscardBufferedData();//不加这句不能正确返回开头 
-                segAddr = 0;
-
-                //根据hex文件地址,填充bin文件
-                while (true)
-                {
-                    szLine = HexReader.ReadLine(); //读取一行数据
-                    if (szLine == null) //读完所有行
-                    {
-                        break;
-                    }
-                    if (szLine.Substring(0, 1) == ":") //判断第1字符是否是:
-                    {
-
-                        if (szLine.Substring(1, 8) == "00000001")//数据结束
-                        {
-                            break;
-                        }
-                        if (szLine.Substring(7, 2) == "04")
-                        {
-                            segAddr = Int32.Parse(szLine.Substring(9, 4), NumberStyles.HexNumber);
-                            segAddr *= 16;
-                        }
-                        if (szLine.Substring(7, 2) == "00")
-                        {
-                            int tmpAddr = Int32.Parse(szLine.Substring(3, 4), NumberStyles.HexNumber);
-                            int num = Int16.Parse(szLine.Substring(1, 2), NumberStyles.HexNumber);
-                            tmpAddr += segAddr;
-                            j = 0;
-                            for (i = 0; i < num; i++)
-                            {
-                                szBin[first++] = (byte)Int16.Parse(szLine.Substring(j + 9, 2), NumberStyles.HexNumber);
-                                j += 2;
-                            }
-
-                        }
-                    }
-
-                }
-
-                HexReader.Close(); //关闭目标文件
-                filePath = Path.ChangeExtension(szHexPath, "bin");
-                //tbBinPath.Text = szBinPath;
-                FileStream fs = new FileStream(filePath, FileMode.Create);
-
-                //将byte数组写入文件中
-                fs.Write(szBin, 0, szBin.Length);
-                //所有流类型都要关闭流，否则会出现内存泄露问题                
-                fsLen = (int)fs.Length / 1000;                    //计算总段长
-                //txb_totalsection.Text = fsLen.ToString();
-                fs.Close();
-
-                string tmp = "文件转换完成! 文件大小: ";
-                tmp += sum.ToString();
-                tmp += "字节";
-                //FileStream fBin = new FileStream(szBinPath, FileMode.Create); //创建文件BIN文件
-                //BinaryWriter BinWrite = new BinaryWriter(fBin); //二进制方式打开文件
-                //BinWrite.Write(szBin, 0,maxAddr); //写入数据
-                //BinWrite.Flush();//释放缓存
-                //BinWrite.Close();//关闭文件
-                //string tmp = "文件转换完成! 文件大小: ";
-                //tmp += maxAddr.ToString();
-                //tmp += "字节";
-                MessageBox.Show(tmp, "提示");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-
-        }
 
         /// <summary>
         /// once has date in. we should show it on the txb.(找到了bug的原因，就是有数据来了之后首先主动去读取了一次数据，然后又通过这个服务去被动读取了一次，所以会出现问题。)
@@ -372,174 +248,10 @@ namespace win_iap_ymodem
             }
             catch
             {
-                // MessageBox.Show("串口出现故障");
+                 MessageBox.Show("串口出现故障");
             }
         }
 
-        private bool YmodemUpdateFile(string filePath)
-        {
-            /* control signals */
-            const byte STX = 2;  // Start of TeXt 
-            const byte EOT = 4;  // End Of Transmission
-            const byte ACK = 6;  // Positive ACknowledgement
-
-            /* sizes */
-            const int dataSize = 1024;
-            const int crcSize = 2;
-
-            /* the packet size: 1029 bytes */
-            /* header: 3 bytes */
-            // STX
-            int proprassVal = 0;
-            int packetNumber = 0;
-            int invertedPacketNumber = 255;
-            /* data: 1024 bytes */
-            byte[] data = new byte[dataSize];
-            /* footer: 2 bytes */
-            byte[] CRC = new byte[crcSize];
-
-            /* get the file */
-            FileStream fileStream = new FileStream(@filePath, FileMode.Open, FileAccess.Read);
-            progressBar1.Maximum = (int)(fileStream.Length / 1024) + 1;
-
-            try
-            {
-                /* send the initial packet with filename and filesize */
-                if (serialPort1.ReadByte() != C)
-                {
-                    Console.WriteLine("Can't begin the transfer.");
-                    return false;
-                }
-
-                sendYmodemInitialPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, filePath, fileStream, CRC, crcSize);
-
-                if (serialPort1.ReadByte() != ACK)
-                {
-                    Console.WriteLine("Can't send the initial packet.");
-                    return false;
-                }
-
-                if (serialPort1.ReadByte() != C)
-                    return false;
-
-                /* send packets with a cycle until we send the last byte */
-                int fileReadCount;
-                do
-                {
-                    /* if this is the last packet fill the remaining bytes with 0 */
-                    fileReadCount = fileStream.Read(data, 0, dataSize);
-                    if (fileReadCount == 0) break;
-                    if (fileReadCount != dataSize)
-                        for (int i = fileReadCount; i < dataSize; i++)
-                            data[i] = 0;
-
-                    /* calculate packetNumber */
-                    packetNumber++;
-                    if (packetNumber > 255)
-                        packetNumber -= 256;
-                    Console.WriteLine(packetNumber);
-
-                    /* calculate invertedPacketNumber */
-                    invertedPacketNumber = 255 - packetNumber;
-
-                    /* calculate CRC */
-                    Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
-                    CRC = crc16Ccitt.ComputeChecksumBytes(data);
-
-                    /* send the packet */
-                    sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
-                    progressBar1.Value = ++ proprassVal;
-                    /* wait for ACK */
-                    if (serialPort1.ReadByte() != ACK)
-                    {
-                        Console.WriteLine("Couldn't send a packet.");
-                        return false;
-                    }
-                } while (dataSize == fileReadCount);
-
-                /* send EOT (tell the downloader we are finished) */
-                serialPort1.Write(new byte[] { EOT }, 0, 1);
-                /* send closing packet */
-                packetNumber = 0;
-                invertedPacketNumber = 255;
-                data = new byte[dataSize];
-                CRC = new byte[crcSize];
-                sendYmodemClosingPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
-                /* get ACK (downloader acknowledge the EOT) */
-                if (serialPort1.ReadByte() != ACK)
-                {
-                    Console.WriteLine("Can't complete the transfer.");
-                    return false;
-                }
-            }
-            catch (TimeoutException)
-            {
-                throw new Exception("Eductor does not answering");
-            }
-            finally
-            {
-                fileStream.Close();
-            }
-
-            Console.WriteLine("File transfer is succesful");
-            return true;
-        }
-
-        private void sendYmodemPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
-        {
-            serialPort1.Write(new byte[] { STX }, 0, 1);
-            serialPort1.Write(new byte[] { (byte)packetNumber }, 0, 1);
-            serialPort1.Write(new byte[] { (byte)invertedPacketNumber }, 0, 1);
-            serialPort1.Write(data, 0, dataSize);
-            serialPort1.Write(CRC, 0, crcSize);
-            
-        }
-
-        private void sendYmodemInitialPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, string path, FileStream fileStream, byte[] CRC, int crcSize)
-        {
-            string fileName = System.IO.Path.GetFileName(path);
-            string fileSize = fileStream.Length.ToString();
-            
-
-            /* add filename to data */
-            int i;
-            for (i = 0; i < fileName.Length && (fileName.ToCharArray()[i] != 0); i++)
-            {
-                data[i] = (byte)fileName.ToCharArray()[i];
-            }
-            data[i] = 0;
-
-            /* add filesize to data */
-            int j;
-            for (j = 0; j < fileSize.Length && (fileSize.ToCharArray()[j] != 0); j++)
-            {
-                data[(i + 1) + j] = (byte)fileSize.ToCharArray()[j];
-            }
-            data[(i + 1) + j] = 0;
-
-            /* fill the remaining data bytes with 0 */
-            for (int k = ((i + 1) + j) + 1; k < dataSize; k++)
-            {
-                data[k] = 0;
-            }
-
-            /* calculate CRC */
-            Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
-            CRC = crc16Ccitt.ComputeChecksumBytes(data);
-
-            /* send the packet */
-            sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
-        }
-
-        private void sendYmodemClosingPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
-        {
-            /* calculate CRC */
-            Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
-            CRC = crc16Ccitt.ComputeChecksumBytes(data);
-
-            /* send the packet */
-            sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
-        }
 
         /// <summary>
         /// A thread to update firmware.
@@ -549,43 +261,40 @@ namespace win_iap_ymodem
             YmodemUpdateFile(txb_FilePath.Text);
         }
 
-        private void startUpDate()
-        {
-            Thread UploadThread = new Thread(updateFileThread);
-            UploadThread.Start();
-        }
-        /// <summary>
-        /// update the firmware when the bootloader is runing.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void btn_Update_Click(object sender, EventArgs e)
-        {
-            
-        }
 
         /// <summary>
         /// upload the firmware when the app is runing.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btn_Update1_Click(object sender, EventArgs e)
+        private void btn_Update_Click(object sender, EventArgs e)
         {
+            if ( !File.Exists(@txb_FilePath.Text) || (Path.GetExtension(@txb_FilePath.Text) != ".bin"))
+            {
+                MessageBox.Show("请选择有效的bin文件", "提示");
+                return;
+            }
+
             progressBar1.Value = 0;
-            this.Refresh();
-            
+            this.serialPort1.DataReceived -= new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
             serialPort1.Write("update\r\n");//发送更新命令
             serialPort1.ReadTimeout = 1000;
             try
             {
                 string rec = serialPort1.ReadTo("C");
-                startUpDate();
+                Thread UploadThread = new Thread(updateFileThread);
+                UploadThread.Start();
             }
             catch
             {
-                MessageBox.Show("响应超时");
+                MessageBox.Show("后台下载失败");
+            }
+            finally
+            {
+                this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
             }
         }
+
 
         /// <summary>
         /// erase all flash when the button has checked.
@@ -595,8 +304,6 @@ namespace win_iap_ymodem
         private void btn_Erase_Click(object sender, EventArgs e)
         {
             progressBar1.Value = 0;
-            this.Refresh();
-
             this.serialPort1.DataReceived -= new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
 
             serialPort1.Write("erase\r\n");
@@ -637,6 +344,7 @@ namespace win_iap_ymodem
             }
         }
 
+
         /// <summary>
         /// upload the app file form stm32 to PC.
         /// </summary>
@@ -646,6 +354,7 @@ namespace win_iap_ymodem
         {
             //to do.
         }
+
 
         /// <summary>
         /// reset the stm32 when the button has been checkde.
@@ -657,6 +366,7 @@ namespace win_iap_ymodem
             serialPort1.Write("reset\r\n");
         }
 
+
         /// <summary>
         /// clear tbx_show window when the button has been checked.
         /// </summary>
@@ -667,30 +377,24 @@ namespace win_iap_ymodem
             tbx_show.Text = "";
         }
 
-        //should to remove the button.
-        string cmd_str = "";
-        private void btn_SendCMD_Click(object sender, EventArgs e)
-        {
-            
-        }
 
         /// <summary>
         /// when user is input the key on the tbx_show, it should be send to stm32.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        string sendCmd = "";
         private void tbx_show_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
+                //tbx_show.AppendText("\r\n" + sendCmd + "\r\n");
                 switch (sendCmd)
                 {
                     case "update":
-                        btn_Update1_Click(null, null);
+                        btn_Update_Click(null, null);
                         break;
                     case "upload":
-                        
+                        //to do.
                         break;
                     case "erase":
                         btn_Erase_Click(null, null);
@@ -704,11 +408,185 @@ namespace win_iap_ymodem
                 }
                 sendCmd = "";
             }
+            else if (e.KeyChar == (char)Keys.Back)
+            {
+                if(sendCmd.Length > 0)
+                    sendCmd = sendCmd.Substring(0, sendCmd.Length - 1);
+            }
             else
             {
-                //serialPort1.Write(e.KeyChar.ToString());
                 sendCmd += e.KeyChar.ToString();
             }
         }
+
+
+        private bool YmodemUpdateFile(string filePath)
+        {
+            /* control signals */
+            const byte STX = 2;  // Start of TeXt 
+            const byte EOT = 4;  // End Of Transmission
+            const byte ACK = 6;  // Positive ACknowledgement
+
+            /* sizes */
+            const int dataSize = 1024;
+            const int crcSize = 2;
+
+            /* the packet size: 1029 bytes */
+            /* header: 3 bytes */
+            // STX
+            int proprassVal = 0;
+            int packetNumber = 0;
+            int invertedPacketNumber = 255;
+            /* data: 1024 bytes */
+            byte[] data = new byte[dataSize];
+            /* footer: 2 bytes */
+            byte[] CRC = new byte[crcSize];
+
+            /* get the file */
+            FileStream fileStream = new FileStream(@filePath, FileMode.Open, FileAccess.Read);
+            progressBar1.Maximum = (int)(fileStream.Length / 1024) + 1;
+
+            try
+            {
+                /* send the initial packet with filename and filesize */
+                //if (serialPort1.ReadByte() != C)
+                //{
+                //    Console.WriteLine("Can't begin the transfer.");
+                //    return false;
+                //}
+
+                sendYmodemInitialPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, filePath, fileStream, CRC, crcSize);
+
+                if (serialPort1.ReadByte() != ACK)
+                {
+                    Console.WriteLine("Can't send the initial packet.");
+                    return false;
+                }
+
+                if (serialPort1.ReadByte() != C)
+                    return false;
+
+                /* send packets with a cycle until we send the last byte */
+                int fileReadCount;
+                do
+                {
+                    /* if this is the last packet fill the remaining bytes with 0 */
+                    fileReadCount = fileStream.Read(data, 0, dataSize);
+                    if (fileReadCount == 0) break;
+                    if (fileReadCount != dataSize)
+                        for (int i = fileReadCount; i < dataSize; i++)
+                            data[i] = 0;
+
+                    /* calculate packetNumber */
+                    packetNumber++;
+                    if (packetNumber > 255)
+                        packetNumber -= 256;
+                    Console.WriteLine(packetNumber);
+
+                    /* calculate invertedPacketNumber */
+                    invertedPacketNumber = 255 - packetNumber;
+
+                    /* calculate CRC */
+                    Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
+                    CRC = crc16Ccitt.ComputeChecksumBytes(data);
+
+                    /* send the packet */
+                    sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+                    progressBar1.Value = ++proprassVal;
+                    /* wait for ACK */
+                    if (serialPort1.ReadByte() != ACK)
+                    {
+                        Console.WriteLine("Couldn't send a packet.");
+                        return false;
+                    }
+                } while (dataSize == fileReadCount);
+
+                /* send EOT (tell the downloader we are finished) */
+                serialPort1.Write(new byte[] { EOT }, 0, 1);
+                /* send closing packet */
+                packetNumber = 0;
+                invertedPacketNumber = 255;
+                data = new byte[dataSize];
+                CRC = new byte[crcSize];
+                sendYmodemClosingPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+                /* get ACK (downloader acknowledge the EOT) */
+                if (serialPort1.ReadByte() != ACK)
+                {
+                    Console.WriteLine("Can't complete the transfer.");
+                    return false;
+                }
+            }
+            catch (TimeoutException)
+            {
+                throw new Exception("Eductor does not answering");
+            }
+            finally
+            {
+                fileStream.Close();
+            }
+
+            Console.WriteLine("File transfer is succesful");
+            return true;
+        }
+
+
+        private void sendYmodemPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
+        {
+            serialPort1.Write(new byte[] { STX }, 0, 1);
+            serialPort1.Write(new byte[] { (byte)packetNumber }, 0, 1);
+            serialPort1.Write(new byte[] { (byte)invertedPacketNumber }, 0, 1);
+            serialPort1.Write(data, 0, dataSize);
+            serialPort1.Write(CRC, 0, crcSize);
+
+        }
+
+
+        private void sendYmodemInitialPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, string path, FileStream fileStream, byte[] CRC, int crcSize)
+        {
+            string fileName = System.IO.Path.GetFileName(path);
+            string fileSize = fileStream.Length.ToString();
+
+
+            /* add filename to data */
+            int i;
+            for (i = 0; i < fileName.Length && (fileName.ToCharArray()[i] != 0); i++)
+            {
+                data[i] = (byte)fileName.ToCharArray()[i];
+            }
+            data[i] = 0;
+
+            /* add filesize to data */
+            int j;
+            for (j = 0; j < fileSize.Length && (fileSize.ToCharArray()[j] != 0); j++)
+            {
+                data[(i + 1) + j] = (byte)fileSize.ToCharArray()[j];
+            }
+            data[(i + 1) + j] = 0;
+
+            /* fill the remaining data bytes with 0 */
+            for (int k = ((i + 1) + j) + 1; k < dataSize; k++)
+            {
+                data[k] = 0;
+            }
+
+            /* calculate CRC */
+            Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
+            CRC = crc16Ccitt.ComputeChecksumBytes(data);
+
+            /* send the packet */
+            sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+        }
+
+
+        private void sendYmodemClosingPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
+        {
+            /* calculate CRC */
+            Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
+            CRC = crc16Ccitt.ComputeChecksumBytes(data);
+
+            /* send the packet */
+            sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+        }
+
     }
 }

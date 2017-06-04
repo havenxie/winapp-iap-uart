@@ -47,7 +47,7 @@
             this.btn_Erase = new System.Windows.Forms.Button();
             this.btn_Upload = new System.Windows.Forms.Button();
             this.btn_Reset = new System.Windows.Forms.Button();
-            this.btn_Update1 = new System.Windows.Forms.Button();
+            this.btn_Update = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -238,17 +238,17 @@
             this.btn_Reset.UseVisualStyleBackColor = true;
             this.btn_Reset.Click += new System.EventHandler(this.btn_Reset_Click);
             // 
-            // btn_Update1
+            // btn_Update
             // 
-            this.btn_Update1.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.btn_Update1.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.btn_Update1.Location = new System.Drawing.Point(220, 336);
-            this.btn_Update1.Name = "btn_Update1";
-            this.btn_Update1.Size = new System.Drawing.Size(100, 28);
-            this.btn_Update1.TabIndex = 15;
-            this.btn_Update1.Text = "更新固件UpDate";
-            this.btn_Update1.UseVisualStyleBackColor = false;
-            this.btn_Update1.Click += new System.EventHandler(this.btn_Update1_Click);
+            this.btn_Update.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.btn_Update.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.btn_Update.Location = new System.Drawing.Point(220, 336);
+            this.btn_Update.Name = "btn_Update";
+            this.btn_Update.Size = new System.Drawing.Size(100, 28);
+            this.btn_Update.TabIndex = 15;
+            this.btn_Update.Text = "更新固件UpDate";
+            this.btn_Update.UseVisualStyleBackColor = false;
+            this.btn_Update.Click += new System.EventHandler(this.btn_Update_Click);
             // 
             // Form1
             // 
@@ -259,7 +259,7 @@
             this.Controls.Add(this.btn_Reset);
             this.Controls.Add(this.btn_Upload);
             this.Controls.Add(this.btn_Erase);
-            this.Controls.Add(this.btn_Update1);
+            this.Controls.Add(this.btn_Update);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.progressBar1);
@@ -293,7 +293,7 @@
         private System.Windows.Forms.Button btn_Upload;
         private System.Windows.Forms.Button btn_Reset;
         private System.Windows.Forms.TextBox tbx_show;
-        private System.Windows.Forms.Button btn_Update1;
+        private System.Windows.Forms.Button btn_Update;
         private System.Windows.Forms.Button btn_Clear;
     }
 }
