@@ -49,8 +49,12 @@
             this.btn_RunApp = new System.Windows.Forms.Button();
             this.btn_Update = new System.Windows.Forms.Button();
             this.btn_IAPMenu = new System.Windows.Forms.Button();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.cbx_PageSize = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // btn_Port
@@ -102,7 +106,7 @@
             // lbl_Pass
             // 
             this.lbl_Pass.AutoSize = true;
-            this.lbl_Pass.Location = new System.Drawing.Point(16, 26);
+            this.lbl_Pass.Location = new System.Drawing.Point(19, 30);
             this.lbl_Pass.Name = "lbl_Pass";
             this.lbl_Pass.Size = new System.Drawing.Size(65, 12);
             this.lbl_Pass.TabIndex = 4;
@@ -145,14 +149,14 @@
             // txb_FilePath
             // 
             this.txb_FilePath.BackColor = System.Drawing.SystemColors.Window;
-            this.txb_FilePath.Location = new System.Drawing.Point(87, 23);
+            this.txb_FilePath.Location = new System.Drawing.Point(21, 54);
             this.txb_FilePath.Name = "txb_FilePath";
-            this.txb_FilePath.Size = new System.Drawing.Size(317, 21);
+            this.txb_FilePath.Size = new System.Drawing.Size(155, 21);
             this.txb_FilePath.TabIndex = 7;
             // 
             // btn_SelectFile
             // 
-            this.btn_SelectFile.Location = new System.Drawing.Point(421, 23);
+            this.btn_SelectFile.Location = new System.Drawing.Point(112, 25);
             this.btn_SelectFile.Name = "btn_SelectFile";
             this.btn_SelectFile.Size = new System.Drawing.Size(64, 23);
             this.btn_SelectFile.TabIndex = 8;
@@ -169,7 +173,7 @@
             this.groupBox1.Controls.Add(this.cbx_Baud);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(191, 352);
+            this.groupBox1.Size = new System.Drawing.Size(191, 173);
             this.groupBox1.TabIndex = 10;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "端口操作";
@@ -178,15 +182,12 @@
             // 
             this.groupBox2.Controls.Add(this.btn_Clear);
             this.groupBox2.Controls.Add(this.tbx_show);
-            this.groupBox2.Controls.Add(this.txb_FilePath);
-            this.groupBox2.Controls.Add(this.lbl_Pass);
-            this.groupBox2.Controls.Add(this.btn_SelectFile);
             this.groupBox2.Location = new System.Drawing.Point(220, 12);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(507, 306);
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "文件操作";
+            this.groupBox2.Text = "信息视窗";
             // 
             // btn_Clear
             // 
@@ -201,11 +202,11 @@
             // tbx_show
             // 
             this.tbx_show.BackColor = System.Drawing.SystemColors.HighlightText;
-            this.tbx_show.Location = new System.Drawing.Point(1, 52);
+            this.tbx_show.Location = new System.Drawing.Point(1, 20);
             this.tbx_show.Multiline = true;
             this.tbx_show.Name = "tbx_show";
             this.tbx_show.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbx_show.Size = new System.Drawing.Size(506, 223);
+            this.tbx_show.Size = new System.Drawing.Size(506, 255);
             this.tbx_show.TabIndex = 9;
             this.tbx_show.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbx_show_KeyPress);
             // 
@@ -261,12 +262,47 @@
             this.btn_IAPMenu.UseVisualStyleBackColor = true;
             this.btn_IAPMenu.Click += new System.EventHandler(this.btn_IAPMenu_Click);
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.cbx_PageSize);
+            this.groupBox3.Controls.Add(this.label1);
+            this.groupBox3.Controls.Add(this.lbl_Pass);
+            this.groupBox3.Controls.Add(this.btn_SelectFile);
+            this.groupBox3.Controls.Add(this.txb_FilePath);
+            this.groupBox3.Location = new System.Drawing.Point(13, 191);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(190, 173);
+            this.groupBox3.TabIndex = 17;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "文件设置";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(19, 102);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(53, 12);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "包长度：";
+            // 
+            // cbx_PageSize
+            // 
+            this.cbx_PageSize.FormattingEnabled = true;
+            this.cbx_PageSize.Items.AddRange(new object[] {
+            "128",
+            "1024"});
+            this.cbx_PageSize.Location = new System.Drawing.Point(78, 99);
+            this.cbx_PageSize.Name = "cbx_PageSize";
+            this.cbx_PageSize.Size = new System.Drawing.Size(98, 20);
+            this.cbx_PageSize.TabIndex = 10;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.ClientSize = new System.Drawing.Size(743, 416);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btn_IAPMenu);
             this.Controls.Add(this.btn_RunApp);
             this.Controls.Add(this.btn_Upload);
@@ -282,6 +318,8 @@
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -308,6 +346,9 @@
         private System.Windows.Forms.Button btn_Update;
         private System.Windows.Forms.Button btn_Clear;
         private System.Windows.Forms.Button btn_IAPMenu;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.ComboBox cbx_PageSize;
+        private System.Windows.Forms.Label label1;
     }
 }
 
