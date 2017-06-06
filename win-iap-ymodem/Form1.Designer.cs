@@ -50,8 +50,8 @@
             this.btn_Update = new System.Windows.Forms.Button();
             this.btn_IAPMenu = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.cbx_PageSize = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -276,6 +276,18 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "文件设置";
             // 
+            // cbx_PageSize
+            // 
+            this.cbx_PageSize.FormattingEnabled = true;
+            this.cbx_PageSize.Items.AddRange(new object[] {
+            "64",
+            "128",
+            "1024"});
+            this.cbx_PageSize.Location = new System.Drawing.Point(78, 99);
+            this.cbx_PageSize.Name = "cbx_PageSize";
+            this.cbx_PageSize.Size = new System.Drawing.Size(98, 20);
+            this.cbx_PageSize.TabIndex = 10;
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -284,17 +296,6 @@
             this.label1.Size = new System.Drawing.Size(53, 12);
             this.label1.TabIndex = 9;
             this.label1.Text = "包长度：";
-            // 
-            // cbx_PageSize
-            // 
-            this.cbx_PageSize.FormattingEnabled = true;
-            this.cbx_PageSize.Items.AddRange(new object[] {
-            "128",
-            "1024"});
-            this.cbx_PageSize.Location = new System.Drawing.Point(78, 99);
-            this.cbx_PageSize.Name = "cbx_PageSize";
-            this.cbx_PageSize.Size = new System.Drawing.Size(98, 20);
-            this.cbx_PageSize.TabIndex = 10;
             // 
             // Form1
             // 

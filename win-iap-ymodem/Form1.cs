@@ -454,16 +454,24 @@ namespace win_iap_ymodem
             
             byte HEAD = 0;
             int dataSize = 0;
-            if (cbx_PageSize.Text == "128")
+            switch (cbx_PageSize.Text)
             {
-                HEAD = 1;//SOH
-                dataSize = 128;
+                case "64":
+                    HEAD = 3;//SEH
+                    dataSize = 64;
+                    break;
+                case "128":
+                    HEAD = 1;//SOH
+                    dataSize = 128;
+                    break;
+                case "1024":
+                    HEAD = 2;// STX
+                    dataSize = 1024;
+                    break;
+                default:
+                    break;
             }
-            else if (cbx_PageSize.Text == "1024")
-            {
-                HEAD = 2;// STX
-                dataSize = 1024;
-            }
+
             /* header: 3 bytes */
             int proprassVal = 0;
             int packetNumber = 0;
@@ -475,7 +483,8 @@ namespace win_iap_ymodem
 
             /* get the file */
             FileStream fileStream = new FileStream(@filePath, FileMode.Open, FileAccess.Read);
-            progressBar1.Maximum = (int)(fileStream.Length / dataSize) + 1;
+            int packetCnt = (fileStream.Length % dataSize) == 0 ? (int)(fileStream.Length / dataSize) : (int)(fileStream.Length / dataSize) + 1;
+            progressBar1.Maximum = packetCnt;
 
             try
             {
