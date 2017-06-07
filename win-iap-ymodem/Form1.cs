@@ -49,13 +49,11 @@ namespace win_iap_ymodem
 
         /* packet define */
         const byte C = 67;   // capital letter C
-        const byte PACKET_SEQNO_INDEX = 1;
-        const byte PACKET_SEQNO_COMP_INDEX = 2;
-        const byte PACKET_HEADER = 3;
-        const byte PACKET_TRAILER = 2;
-        const byte PACKET_OVERHEAD = 2 + 3;
-        const byte PACKET_SIZE = 128;
-        const int PACKET_1K_SIZE = 1024;
+        //const byte PACKET_SEQNO_INDEX = 1;
+        //const byte PACKET_SEQNO_COMP_INDEX = 2;
+        //const byte PACKET_HEADER = 3;
+        //const byte PACKET_TRAILER = 2;
+        //const byte PACKET_OVERHEAD = 2 + 3;
 
         const int FILE_NAME_LENGTH = 256;
         const byte FILE_SIZE_LENGTH = 16;
@@ -219,7 +217,11 @@ namespace win_iap_ymodem
             ///定义Root指向注册表HKEY_LOCAL_MACHINE节点
             regRootKey = Registry.LocalMachine;
             regSubKey = regRootKey.OpenSubKey(strRegPath);
-            if (regSubKey.GetValueNames() == null) return;
+            if (regSubKey.GetValueNames() == null)
+            {
+                MessageBox.Show("获取串口设备失败");
+                return;
+            } 
             string[] strCommList = regSubKey.GetValueNames();
             foreach (string VName in strCommList)
             {
