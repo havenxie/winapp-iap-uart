@@ -49,6 +49,7 @@ namespace win_iap_ymodem
 
         /* packet define */
         const byte C = 67;   // capital letter C
+        byte STX = 2;  // Start Of Text
         //const byte PACKET_SEQNO_INDEX = 1;
         //const byte PACKET_SEQNO_COMP_INDEX = 2;
         //const byte PACKET_HEADER = 3;
@@ -70,7 +71,7 @@ namespace win_iap_ymodem
             serialPort1.Encoding = Encoding.GetEncoding("gb2312");//串口接收编码GB2312码
             System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;//忽略程序跨越线程运行导致的错误.没有此句将会产生错误
             cbx_Baud.SelectedIndex = 13;
-            cbx_PageSize.SelectedIndex = 1;
+            cbx_PageSize.SelectedIndex = 4;
         }
 
 
@@ -448,31 +449,44 @@ namespace win_iap_ymodem
         }
 
 
+        private byte getPageHead(string text)
+        {
+            switch (Convert.ToInt32(text))
+            {
+                //case 8:
+                //    return 0xA1;
+                //case 16:
+                //    return 0xA2;
+                case 32:
+                    return 0xA3;
+                case 64:
+                    return 0xA4;
+                case 128:
+                    return 0xA5;
+                case 256:
+                    return 0xA6;
+                case 512:
+                    return 0xA7;
+                case 1024:
+                    return 0xA8;
+                //case 2048:
+                //    return 0xA9;
+                default:
+                    return 2;
+            }
+        }
         private bool YmodemUpdateFile(string filePath)
         {
+            const byte SOH = 1;  // Start Of Head
+
             const byte EOT = 4;  // End Of Transmission
             const byte ACK = 6;  // Positive ACknowledgement
             const int crcSize = 2;
-            
-            byte HEAD = 0;
-            int dataSize = 0;
-            switch (cbx_PageSize.Text)
-            {
-                case "64":
-                    HEAD = 3;//SEH
-                    dataSize = 64;
-                    break;
-                case "128":
-                    HEAD = 1;//SOH
-                    dataSize = 128;
-                    break;
-                case "1024":
-                    HEAD = 2;// STX
-                    dataSize = 1024;
-                    break;
-                default:
-                    break;
-            }
+
+            //byte HEAD = 0;
+            // int dataSize = 1024;
+            int dataSize = Convert.ToInt32(cbx_PageSize.Text);
+            STX = getPageHead(cbx_PageSize.Text);
 
             /* header: 3 bytes */
             int proprassVal = 0;
@@ -490,14 +504,7 @@ namespace win_iap_ymodem
 
             try
             {
-                /* send the initial packet with filename and filesize */
-                //if (serialPort1.ReadByte() != C)
-                //{
-                //    Console.WriteLine("Can't begin the transfer.");
-                //    return false;
-                //}
-
-                sendYmodemInitialPacket(HEAD, packetNumber, invertedPacketNumber, data, dataSize, filePath, fileStream, CRC, crcSize);
+                if (!sendYmodemInitialPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, filePath, fileStream, CRC, crcSize)) return false;
 
                 if (serialPort1.ReadByte() != ACK)
                 {
@@ -533,7 +540,7 @@ namespace win_iap_ymodem
                     CRC = crc16Ccitt.ComputeChecksumBytes(data);
 
                     /* send the packet */
-                    sendYmodemPacket(HEAD, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+                    if (!sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize)) return false;
                     progressBar1.Value = ++proprassVal;
                     /* wait for ACK */
                     if (serialPort1.ReadByte() != ACK)
@@ -550,7 +557,7 @@ namespace win_iap_ymodem
                 invertedPacketNumber = 255;
                 data = new byte[dataSize];
                 CRC = new byte[crcSize];
-                sendYmodemClosingPacket(HEAD, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+                if (!sendYmodemClosingPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize)) return false;
                 /* get ACK (downloader acknowledge the EOT) */
                 if (serialPort1.ReadByte() != ACK)
                 {
@@ -560,7 +567,18 @@ namespace win_iap_ymodem
             }
             catch (TimeoutException)
             {
-                throw new Exception("Eductor does not answering");
+                progressBar1.Value = 0;
+                MessageBox.Show("数据传输超时");
+            }
+            catch (InvalidOperationException)
+            {
+                progressBar1.Value = 0;
+                MessageBox.Show("端口打开失败");
+            }
+            catch (IOException)
+            {
+                progressBar1.Value = 0;
+                MessageBox.Show("端口被中断，请检查连接");
             }
             finally
             {
@@ -572,18 +590,37 @@ namespace win_iap_ymodem
         }
 
 
-        private void sendYmodemPacket(byte HEAD, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
+        private bool sendYmodemPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
         {
-            serialPort1.Write(new byte[] { HEAD }, 0, 1);
-            serialPort1.Write(new byte[] { (byte)packetNumber }, 0, 1);
-            serialPort1.Write(new byte[] { (byte)invertedPacketNumber }, 0, 1);
-            serialPort1.Write(data, 0, dataSize);
-            serialPort1.Write(CRC, 0, crcSize);
+            try
+            {
+                serialPort1.Write(new byte[] { STX }, 0, 1);
+                serialPort1.Write(new byte[] { (byte)packetNumber }, 0, 1);
+                serialPort1.Write(new byte[] { (byte)invertedPacketNumber }, 0, 1);
+                serialPort1.Write(data, 0, dataSize);
+                serialPort1.Write(CRC, 0, crcSize);
+                return true;
+            }
+            catch (InvalidOperationException)
+            {
+                MessageBox.Show("端口打开失败");
+                return false;
+            }
+            catch (TimeoutException)
+            {
+                MessageBox.Show("数据传输超时");
+                return false;
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("端口被中断，请检查连接");
+                return false;
+            }
 
         }
 
 
-        private void sendYmodemInitialPacket(byte HEAD, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, string path, FileStream fileStream, byte[] CRC, int crcSize)
+        private bool sendYmodemInitialPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, string path, FileStream fileStream, byte[] CRC, int crcSize)
         {
             string fileName = System.IO.Path.GetFileName(path);
             string fileSize = fileStream.Length.ToString();
@@ -616,18 +653,21 @@ namespace win_iap_ymodem
             CRC = crc16Ccitt.ComputeChecksumBytes(data);
 
             /* send the packet */
-            sendYmodemPacket(HEAD, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+            if (!sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize)) return false;
+            return true;
         }
 
 
-        private void sendYmodemClosingPacket(byte HEAD, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
+        private bool sendYmodemClosingPacket(byte STX, int packetNumber, int invertedPacketNumber, byte[] data, int dataSize, byte[] CRC, int crcSize)
         {
             /* calculate CRC */
             Crc16Ccitt crc16Ccitt = new Crc16Ccitt(InitialCrcValue.Zeros);
             CRC = crc16Ccitt.ComputeChecksumBytes(data);
 
             /* send the packet */
-            sendYmodemPacket(HEAD, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize);
+            if (!sendYmodemPacket(STX, packetNumber, invertedPacketNumber, data, dataSize, CRC, crcSize)) return false;
+
+            return true;
         }
 
 
