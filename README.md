@@ -15,7 +15,7 @@
 3. 本篇是属于运行在windows平台的上位机工具部分，另外两篇介绍请参阅：
     
     - [STM32平台的bootloader](https://github.com/havenxie/stm32-iap-bootloader)
-    - [STM32平台的App(usmart版)](https://github.com/havenxie/stm32-iap-bootloader)    
+    - [STM32平台的App(usmart版)](https://github.com/havenxie/stm32-iap-app)    
         或[STM32平台的App(轻量版)](https://github.com/havenxie/stm32-iap-app_lite)
 	
 4. 这套代码使用C#基于.net4.0开发。我用的是vs2017.
