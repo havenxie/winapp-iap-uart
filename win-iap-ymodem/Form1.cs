@@ -321,7 +321,7 @@ namespace win_iap_ymodem
                 string rec = serialPort1.ReadTo("@");
                 rec = serialPort1.ReadTo("@");
                 progressBar1.Maximum = Convert.ToInt32(rec);
-                tbx_show.AppendText("> 需要擦除 " + rec + " 页:\r\n");
+                tbx_show.AppendText("\r\n\n> 需要擦除 " + rec + " 页:\r\n");
                 while (true)
                 {
                     rec = serialPort1.ReadTo("@");
@@ -420,7 +420,7 @@ namespace win_iap_ymodem
                         btn_Update_Click(null, null);
                         break;
                     case "upload":
-                        //to do.
+                        btn_Upload_Click(null, null);
                         break;
                     case "erase":
                         btn_Erase_Click(null, null);
