@@ -316,7 +316,7 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.progressBar1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "STM32-IAP上位机操作工具";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
