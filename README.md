@@ -7,15 +7,15 @@
 
 2. 该项目包含三个部分（三套代码）：
     
-    - 运行在STM32平台的Bootloader；
+    - 运行在STM32平台的Boot；
     - 运行在STM32平台的App(我做了两个，一个是支持usmart的重量版，另一个是很简洁的轻量版)；
     - 运行在Windows平台的上位机操作工具。
 
 3. 本篇是属于运行在windows平台的上位机工具部分，另外两篇介绍请参阅：
     
-    - [STM32平台的bootloader](https://github.com/havenxie/stm32-iap-bootloader)
-    - [STM32平台的App(usmart版)](https://github.com/havenxie/stm32-iap-app)    
-        或[STM32平台的App(轻量版)](https://github.com/havenxie/stm32-iap-app_lite)
+    - [STM32平台的bootloader](https://github.com/havenxie/stm32-iap-uart-boot)
+    - [STM32平台的App(usmart版)](https://github.com/havenxie/stm32-iap-uart-app)    
+    - 或[STM32平台的App(轻量版)](https://github.com/havenxie/stm32-iap-uart-app_lite)
 	
 4. 这套代码使用C#基于.net4.0开发。我用的是vs2017.
 
@@ -23,7 +23,7 @@
 
 ## 工具使用方法：
 
-1. 通过jlink或者其他工具将与你的硬件相对应的bootloader烧入你的片子。
+1. 通过jlink或者其他工具将与你的硬件相对应的boot烧入你的片子。
 
 2. 运行该上位机工具
 
@@ -47,9 +47,9 @@
 
 - "读取固件Upload"按钮将会把芯片内的固件读出来（这个功能还没有做）
 
-- "擦除固件Erase"按钮将会把App部分的固件擦除，之后运行bootloader的菜单。
+- "擦除固件Erase"按钮将会把App部分的固件擦除，之后运行boot的菜单。
 
-- "进入IAP菜单"按钮将会软件自动复位硬件，然后运行bootloader的菜单。
+- "进入IAP菜单"按钮将会软件自动复位硬件，然后运行boot的菜单。
 
 - "运行App"按钮将会软件自动复位硬件，然后跳转到app部分去执行。
 
@@ -57,7 +57,7 @@
 
 - 除了这些按钮你还可以通过在信息视窗输入相应的指令并回车以完成不同的操作，这里就不过多讲解了，你可以自己试一试。
 
-注：bootloader部分只需要烧录一次即可，之后所有操作都通过上位机工具完成。
+注：boot部分只需要烧录一次即可，之后所有操作都通过上位机工具完成。
 
 
 *****
